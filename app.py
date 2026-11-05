@@ -37,6 +37,10 @@ div[data-testid="stMetricValue"] {
 }
 div[data-testid="stMetricLabel"] { font-size: 0.8rem !important; white-space: nowrap !important; }
 
+/* ALIGN INCOME FIELDS - fix misalignment */
+div[data-testid="stTextInput"] { margin-bottom: 12px !important; }
+div[data-testid="stColumns"] { gap: 12px !important; align-items: flex-start !important; }
+
 /* LABELS NOT OVERLAPPING */
 label, div[data-testid="stTextInput"] label:not([data-testid="collapsed"]), div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
     margin-bottom: 6px !important; padding-bottom: 4px !important; display: block !important; position: relative !important; color: #1e293b !important; font-size: 0.9rem !important;
@@ -629,29 +633,40 @@ if main_nav=="Dashboard":
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
     st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {len(df)} receipts total {cur}{total_exp:.2f}")
-    # Clear incomes button - FIXED: resets both session and widget keys
-    c_clear1, c_clear2 = st.columns([1,3])
+    # Clear incomes button - NEW: text inputs allow easy delete
+    c_clear1, c_clear2 = st.columns([1,2])
     with c_clear1:
         if st.button("Clear All", type="secondary", key="clear_incomes", use_container_width=True):
             st.session_state.q1=0.0; st.session_state.q2=0.0; st.session_state.q3=0.0; st.session_state.q4=0.0
-            # Also reset widget keys
-            st.session_state["q1_input"]=0.0; st.session_state["q2_input"]=0.0
-            st.session_state["q3_input"]=0.0; st.session_state["q4_input"]=0.0
+            for k in ["q1_text","q2_text","q3_text","q4_text","q1_input","q2_input","q3_input","q4_input"]:
+                if k in st.session_state:
+                    st.session_state[k]="0" if "text" in k else 0.0
             try:
                 st.query_params["q1"]="0"; st.query_params["q2"]="0"; st.query_params["q3"]="0"; st.query_params["q4"]="0"
             except:
                 pass
             st.rerun()
     with c_clear2:
-        st.caption("Click Clear All to set all Q incomes to 0. To delete, set box to 0 and press Enter.")
+        st.caption("Type amount, Enter. Delete = set to 0. Clear All = all 0.")
 
+    # NEW: Use text inputs for Q incomes - allows empty delete, no freeze, aligned
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=float(st.session_state.q1), min_value=0.0, step=100.0, key="q1_input", help="Type 0 to clear, then Enter")
-        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=float(st.session_state.q2), min_value=0.0, step=100.0, key="q2_input")
+        q1_str=st.text_input(f"Q1 Income (Apr-Jul) {cur}", value=str(int(st.session_state.q1) if st.session_state.q1==int(st.session_state.q1) else st.session_state.q1), key="q1_text", placeholder="0")
+        q2_str=st.text_input(f"Q2 Income (Jul-Oct) {cur}", value=str(int(st.session_state.q2) if st.session_state.q2==int(st.session_state.q2) else st.session_state.q2), key="q2_text", placeholder="0")
     with col2:
-        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=float(st.session_state.q3), min_value=0.0, step=100.0, key="q3_input")
-        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=float(st.session_state.q4), min_value=0.0, step=100.0, key="q4_input")
+        q3_str=st.text_input(f"Q3 Income (Oct-Jan) {cur}", value=str(int(st.session_state.q3) if st.session_state.q3==int(st.session_state.q3) else st.session_state.q3), key="q3_text", placeholder="0")
+        q4_str=st.text_input(f"Q4 Income (Jan-Apr) {cur}", value=str(int(st.session_state.q4) if st.session_state.q4==int(st.session_state.q4) else st.session_state.q4), key="q4_text", placeholder="0")
+    
+    def parse_income(s):
+        try:
+            s=str(s).strip().replace(",","").replace(cur,"").replace("£","").replace("$","").replace("€","").replace("₦","").replace("C","").replace("A","")
+            if s=="" or s.lower()=="none": return 0.0
+            return float(s)
+        except:
+            return 0.0
+    
+    q1=parse_income(q1_str); q2=parse_income(q2_str); q3=parse_income(q3_str); q4=parse_income(q4_str)
     # Update session only if changed - and allow 0
     if float(q1)!=float(st.session_state.q1): st.session_state.q1=float(q1)
     if float(q2)!=float(st.session_state.q2): st.session_state.q2=float(q2)
