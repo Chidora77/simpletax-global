@@ -493,7 +493,7 @@ if not st.session_state.user_id:
         user_code=st.text_input("MemorableCode", placeholder="type a memorable name or code", label_visibility="collapsed", key="login_code_input")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -514,7 +514,7 @@ with col_h2:
         st.session_state.receipts_data=[]
         st.query_params.clear()
         st.rerun()
-    st.caption(f"Private: {st.session_state.user_id}")
+    st.caption(f"Name: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country: 
@@ -661,6 +661,7 @@ if main_nav=="Dashboard":
         st.query_params["q4"]=str(st.session_state.q4)
     except:
         pass
+    annual_income = float(q1) + float(q2) + float(q3) + float(q4)
     annual_profit=annual_income-total_exp
     taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, annual_profit)
     # FIXED: Show full amounts without ... truncation - use custom HTML instead of metrics that truncate
