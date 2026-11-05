@@ -629,26 +629,29 @@ if main_nav=="Dashboard":
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
     st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {len(df)} receipts total {cur}{total_exp:.2f}")
-    # Clear incomes button - fixes "clear returns back" issue
+    # Clear incomes button - FIXED: resets both session and widget keys
     c_clear1, c_clear2 = st.columns([1,3])
     with c_clear1:
         if st.button("Clear All", type="secondary", key="clear_incomes", use_container_width=True):
             st.session_state.q1=0.0; st.session_state.q2=0.0; st.session_state.q3=0.0; st.session_state.q4=0.0
+            # Also reset widget keys
+            st.session_state["q1_input"]=0.0; st.session_state["q2_input"]=0.0
+            st.session_state["q3_input"]=0.0; st.session_state["q4_input"]=0.0
             try:
                 st.query_params["q1"]="0"; st.query_params["q2"]="0"; st.query_params["q3"]="0"; st.query_params["q4"]="0"
             except:
                 pass
             st.rerun()
     with c_clear2:
-        st.caption("Click Clear All to set all Q incomes to 0. Or set each box to 0.")
+        st.caption("Click Clear All to set all Q incomes to 0. To delete, set box to 0 and press Enter.")
 
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=float(st.session_state.q1), min_value=0.0, step=0.01, key="q1_input")
-        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=float(st.session_state.q2), min_value=0.0, step=0.01, key="q2_input")
+        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=float(st.session_state.q1), min_value=0.0, step=100.0, key="q1_input", help="Type 0 to clear, then Enter")
+        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=float(st.session_state.q2), min_value=0.0, step=100.0, key="q2_input")
     with col2:
-        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=float(st.session_state.q3), min_value=0.0, step=0.01, key="q3_input")
-        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=float(st.session_state.q4), min_value=0.0, step=0.01, key="q4_input")
+        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=float(st.session_state.q3), min_value=0.0, step=100.0, key="q3_input")
+        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=float(st.session_state.q4), min_value=0.0, step=100.0, key="q4_input")
     # Update session only if changed - and allow 0
     if float(q1)!=float(st.session_state.q1): st.session_state.q1=float(q1)
     if float(q2)!=float(st.session_state.q2): st.session_state.q2=float(q2)
