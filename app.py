@@ -136,10 +136,43 @@ if "current_image_path" not in st.session_state: st.session_state.current_image_
 if "detected" not in st.session_state: st.session_state.detected = {"shop": "", "total": 0.0, "date": datetime.now().strftime("%Y-%m-%d"), "debug": ""}
 if "receipts_data" not in st.session_state: st.session_state.receipts_data = []
 
+# === PERSIST LOGIN ON REFRESH - Fix refresh clears ===
+# Check URL for saved login
+try:
+    qp = st.query_params
+    if "user" in qp and st.session_state.user_id is None:
+        saved_user = qp.get("user","")
+        if saved_user and len(saved_user)>=2:
+            st.session_state.user_id = saved_user
+            if "country" in qp:
+                st.session_state.country = qp.get("country","UK")
+            # Try to restore receipts from file
+            try:
+                f = f"receipts_{st.session_state.user_id}_{st.session_state.country}.csv"
+                if os.path.exists(f):
+                    df_tmp = pd.read_csv(f)
+                    if not df_tmp.empty:
+                        st.session_state.receipts_data = df_tmp.to_dict('records')
+            except:
+                pass
+    if "q1" in qp:
+        try:
+            st.session_state.q1 = float(qp.get("q1","0"))
+            st.session_state.q2 = float(qp.get("q2","0"))
+            st.session_state.q3 = float(qp.get("q3","0"))
+            st.session_state.q4 = float(qp.get("q4","0"))
+        except:
+            pass
+except:
+    pass
+
 if "logout" in st.query_params:
     st.session_state.user_id = None
     st.session_state.receipts_data = []
-    st.query_params.clear()
+    try:
+        st.query_params.clear()
+    except:
+        pass
     st.rerun()
 
 CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Australia": "A$", "Germany": "€"}
@@ -322,7 +355,13 @@ if not st.session_state.user_id:
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
-            st.session_state.user_id=safe; st.session_state.country=country_sel; st.session_state.receipts_data=[]; st.rerun()
+            st.session_state.user_id=safe; st.session_state.country=country_sel; st.session_state.receipts_data=[];
+            try:
+                st.query_params["user"]=safe
+                st.query_params["country"]=country_sel
+            except:
+                pass
+            st.rerun()
     st.stop()
 
 col_h1, col_h2=st.columns([2,1])
@@ -336,7 +375,19 @@ with col_h2:
     st.caption(f"Name: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
-if country_sel!=st.session_state.country: st.session_state.country=country_sel; st.session_state.receipts_data=[]; st.rerun()
+if country_sel!=st.session_state.country: 
+    st.session_state.country=country_sel; st.session_state.receipts_data=[]
+    try:
+        st.query_params["country"]=country_sel
+        # Try restore receipts for new country
+        f = f"receipts_{st.session_state.user_id}_{st.session_state.country}.csv"
+        if os.path.exists(f):
+            df_tmp = pd.read_csv(f)
+            if not df_tmp.empty:
+                st.session_state.receipts_data = df_tmp.to_dict('records')
+    except:
+        pass
+    st.rerun()
 
 cur=get_currency()
 main_nav=st.radio("nav", ["Add","List","Dashboard","Accountant"], horizontal=True, label_visibility="collapsed", key="main_nav")
@@ -438,6 +489,13 @@ if main_nav=="Dashboard":
     if q2!=st.session_state.q2: st.session_state.q2=q2
     if q3!=st.session_state.q3: st.session_state.q3=q3
     if q4!=st.session_state.q4: st.session_state.q4=q4
+    try:
+        st.query_params["q1"]=str(st.session_state.q1)
+        st.query_params["q2"]=str(st.session_state.q2)
+        st.query_params["q3"]=str(st.session_state.q3)
+        st.query_params["q4"]=str(st.session_state.q4)
+    except:
+        pass
     annual_income=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
     annual_profit=annual_income-total_exp
     taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, annual_profit)
