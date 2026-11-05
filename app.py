@@ -12,37 +12,115 @@ st.markdown("""
 html, body, .stApp, [data-testid="stAppViewContainer"] {background-color: #eef2f7 !important;}
 .block-container {background-color: #eef2f7 !important; max-width: 430px !important;}
 #MainMenu, header, footer, [data-testid="stToolbar"] {display: none !important;}
+
+/* BUTTONS BLUE */
 button, div[data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
 a[data-testid="stLinkButton"] {background-color: #1e40af !important; background: #1e40af !important; color: white !important; border-color: #1e40af !important; border-radius: 10px !important;}
+
+/* RADIO BLUE - NUCLEAR */
 * { --primary: #1e40af !important; }
 input[type="radio"] { accent-color: #1e40af !important; }
 div[data-baseweb="radio"] * { border-color: #1e40af !important; }
 div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"] { fill: #1e40af !important; background: #1e40af !important; border-color: #1e40af !important; }
 div[data-baseweb="radio"] > div:first-child { border: 2px solid #1e40af !important; }
-div[data-baseweb="radio"] > div:first-child > div { background: #1e40af !important; }
-label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label { margin-bottom: 6px !important; padding-bottom: 4px !important; display: block !important; position: relative !important; color: #1e293b !important; font-size: 0.9rem !important; }
-div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input, div[data-testid="stTextArea"] textarea { border: 1.5px solid #94a3b8 !important; background: white !important; border-radius: 8px !important; margin-top: 2px !important; }
+div[data-baseweb="radio"] > div:first-child > div { background: #1e40af !important; background-color: #1e40af !important; }
+
+/* FIX METRIC TRUNCATION - A$20... -> A$20000 full */
+div[data-testid="stMetric"] { overflow: visible !important; }
+div[data-testid="stMetricValue"] { 
+    overflow: visible !important; 
+    white-space: normal !important; 
+    text-overflow: unset !important; 
+    font-size: 1.1rem !important;
+    line-height: 1.2 !important;
+    word-break: break-all !important;
+}
+div[data-testid="stMetricLabel"] { font-size: 0.8rem !important; white-space: nowrap !important; }
+
+/* LABELS NOT OVERLAPPING */
+label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
+    margin-bottom: 6px !important; padding-bottom: 4px !important; display: block !important; position: relative !important; color: #1e293b !important; font-size: 0.9rem !important;
+}
+
+/* INPUTS - DEFAULT BLACK BORDER, WHITE BG, NO RED */
+div[data-testid="stTextInput"] input,
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextArea"] textarea,
+div[data-testid="stTextInput"] textarea {
+    border: 1.5px solid #000000 !important;
+    background-color: white !important;
+    border-radius: 8px !important;
+    margin-top: 2px !important;
+    color: #1e293b !important;
+}
+/* Focus -> BLACK not red */
+div[data-testid="stTextInput"] input:focus,
+div[data-testid="stNumberInput"] input:focus,
+div[data-testid="stTextArea"] textarea:focus {
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+div[data-testid="stTextInput"] > div:focus-within,
+div[data-testid="stNumberInput"] > div:focus-within,
+div[data-testid="stTextArea"] > div:focus-within {
+    border-color: #000000 !important;
+    box-shadow: none !important;
+}
+/* Remove Streamlit red error border */
+div[data-testid="stTextInput"] div[data-baseweb="input"],
+div[data-testid="stNumberInput"] div[data-baseweb="input"] {
+    border-color: #000000 !important;
+    background: white !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
 st.components.v1.html("""
 <script>
 (function(){
-  function forceBlue(){
+  function forceFix(){
     try{
       const doc = window.parent.document;
-      if(!doc.getElementById('blue-v12')){
+      if(!doc.getElementById('blue-v13')){
         const s=doc.createElement('style');
-        s.id='blue-v12';
-        s.textContent=`*{--primary:#1e40af !important;} input[type="radio"]{accent-color:#1e40af !important;} div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;} button{background:#1e40af !important; color:white !important;}`;
+        s.id='blue-v13';
+        s.textContent=`
+          *{--primary:#1e40af !important;}
+          input[type="radio"]{accent-color:#1e40af !important;}
+          div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;}
+          button{background:#1e40af !important; color:white !important;}
+          div[data-testid="stMetricValue"]{overflow:visible !important; white-space:normal !important; text-overflow:unset !important; font-size:1.1rem !important; word-break:break-all !important;}
+          div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input, textarea{border:1.5px solid #000 !important; background:white !important;}
+          div[data-testid="stTextInput"] input:focus, div[data-testid="stNumberInput"] input:focus, textarea:focus{border:2px solid #000 !important; box-shadow:none !important; outline:none !important;}
+        `;
         doc.head.appendChild(s);
       }
       doc.querySelectorAll('input[type="radio"]').forEach(r=>{ r.style.setProperty('accent-color','#1e40af','important'); });
       doc.querySelectorAll('div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] > div:first-child > div').forEach(el=>{ try{ el.style.setProperty('fill','#1e40af','important'); el.style.setProperty('background','#1e40af','important'); el.style.setProperty('background-color','#1e40af','important'); }catch(e){} });
+      // Force inputs black border, remove red
+      doc.querySelectorAll('div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input, div[data-testid="stTextArea"] textarea, textarea').forEach(inp=>{
+        inp.style.setProperty('border','1.5px solid #000000','important');
+        inp.style.setProperty('background','white','important');
+        inp.addEventListener('focus', function(){ this.style.setProperty('border','2px solid #000000','important'); this.style.setProperty('box-shadow','none','important'); });
+      });
+      // Remove any red border
+      doc.querySelectorAll('*').forEach(el=>{
+        try{
+          const cs = window.getComputedStyle(el);
+          if(cs.borderColor === 'rgb(255, 75, 75)' || cs.borderColor === 'rgb(255, 0, 0)' || el.style.borderColor.includes('ff4b4b')){
+            el.style.setProperty('border-color','#000000','important');
+          }
+          const bg = cs.backgroundColor;
+          if(bg === 'rgb(255, 75, 75)'){
+            el.style.setProperty('background-color','#1e40af','important');
+          }
+        }catch(e){}
+      });
     }catch(e){}
   }
-  forceBlue(); setInterval(forceBlue,400);
-  try{ new MutationObserver(forceBlue).observe(window.parent.document.body,{childList:true,subtree:true}); }catch(e){}
+  forceFix(); setInterval(forceFix,300);
+  try{ new MutationObserver(forceFix).observe(window.parent.document.body,{childList:true,subtree:true,attributes:true}); }catch(e){}
 })();
 </script>
 """, height=0)
@@ -64,7 +142,6 @@ if "logout" in st.query_params:
     st.query_params.clear()
     st.rerun()
 
-# === CURRENCY + TAX BRACKETS 2026 ===
 CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Australia": "A$", "Germany": "€"}
 def get_currency():
     return CURRENCY_MAP.get(st.session_state.country, "£")
@@ -83,37 +160,21 @@ def calc_tax_uk(profit):
     return taxable, tax+ni, tax, ni, f"PA £{pa} | 20%/40%/45% | NI 6%+2%"
 
 def calc_tax_us(profit):
-    # 2026 IRS Rev Proc 2025-32 self-employed single
-    std_ded=16100; taxable=max(0,profit-std_ded); rem=taxable; tax=0
-    brackets=[(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]
-    prev=0
-    for limit, rate in brackets:
-        if rem<=0: break
-        span=min(limit-prev, rem) if limit!=float('inf') else rem
-        # Actually brackets are cumulative, use correct logic
-        # Simplified: use IRS style
-        pass
-    # Correct progressive
-    rem=taxable; tax=0; prev=0
+    std_ded=16100; taxable=max(0,profit-std_ded); rem=taxable; tax=0; prev=0
     for limit, rate in [(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]:
         if rem<=0: break
-        taxable_in_bracket = min(rem, limit - prev) if limit!=float('inf') else rem
-        if taxable_in_bracket>0:
-            tax+=taxable_in_bracket*rate
-            rem-=taxable_in_bracket
-            prev=limit
-    # Self employment tax approx 15.3% on 92.35% profit, but keep pure income tax for simplicity as requested pure profit tax
-    # User asked pure profit tax only, so no SE addition
+        span = (limit - prev) if limit!=float('inf') else rem
+        amt=min(rem, span)
+        tax+=amt*rate
+        rem-=amt
+        prev=limit if limit!=float('inf') else prev
     return taxable, tax, tax, 0, f"Std Ded ${std_ded} | 10%/12%/22%/24%/32%/35%/37%"
 
 def calc_tax_nigeria(profit):
-    # Nigeria Tax Act 2025 - 2026 effective, pure profit tax only
-    # First 800k 0%, Next 2.2m 15%, Next 9m 18%, Next 13m 21%, Next 25m 23%, Above 50m 25%
     if profit<=800000:
         return 0,0,0,0,"First ₦800k 0%"
     taxable=profit-800000; rem=taxable; tax=0
-    brackets=[(2200000,0.15),(9000000,0.18),(13000000,0.21),(25000000,0.23),(float('inf'),0.25)]
-    for limit, rate in brackets:
+    for limit, rate in [(2200000,0.15),(9000000,0.18),(13000000,0.21),(25000000,0.23),(float('inf'),0.25)]:
         if rem<=0: break
         amt=min(rem,limit)
         tax+=amt*rate
@@ -121,10 +182,8 @@ def calc_tax_nigeria(profit):
     return taxable, tax, tax, 0, "0% ₦0-800k | 15% | 18% | 21% | 23% | 25% >₦50m"
 
 def calc_tax_canada(profit):
-    bpa=16452; taxable=max(0,profit-bpa); rem=taxable; tax=0
-    brackets=[(58523,0.14),(117045,0.205),(181021,0.26),(252752,0.29),(float('inf'),0.33)]
-    prev=0
-    for limit, rate in brackets:
+    bpa=16452; taxable=max(0,profit-bpa); rem=taxable; tax=0; prev=0
+    for limit, rate in [(58523,0.14),(117045,0.205),(181021,0.26),(252752,0.29),(float('inf'),0.33)]:
         if rem<=0: break
         span = (limit - prev) if limit!=float('inf') else rem
         amt=min(rem, span)
@@ -134,11 +193,9 @@ def calc_tax_canada(profit):
     return taxable, tax, tax, 0, f"BPA ${bpa} | 14%/20.5%/26%/29%/33%"
 
 def calc_tax_australia(profit):
-    # 2026-27: 0% 0-18200, 15% 18201-45000, 30% 45001-135000, 37% 135001-190000, 45% >190000 +2% Medicare
     if profit<=18200:
         return 0,0,0,0,"0% $0-$18.2k"
     rem=profit; tax=0
-    # Medicare 2% on full profit if > 24276
     medicare = profit*0.02 if profit>24276 else 0
     if profit>18200:
         amt=min(profit,45000)-18200
@@ -152,22 +209,17 @@ def calc_tax_australia(profit):
     if profit>190000:
         tax+=(profit-190000)*0.45
     total=tax+medicare
-    taxable=profit
-    return taxable, total, tax, medicare, "0% $0-18.2k | 15%/30%/37%/45% +2% Medicare"
+    return profit, total, tax, medicare, "0% $0-18.2k | 15%/30%/37%/45% +2% Medicare"
 
 def calc_tax_germany(profit):
     grund=12348; taxable=max(0,profit-grund)
     if taxable<=0:
         return 0,0,0,0,f"Grundfreibetrag €{grund}"
     if profit<=69878:
-        # Progressive 14% to 42%
-        # Simplified linear: average ~ (14% + 42%*(profit-grund)/(69878-grund))/2 - use formula approx
-        # German formula: use 14% start rising to 42%
-        # For app, approximate: 14% on first part rising
         rate = 0.14 + (0.42-0.14)*(profit-grund)/(69878-grund)
-        tax = taxable * (0.14 + rate)/2  # average
+        tax = taxable * (0.14 + rate)/2
     elif profit<=277825:
-        tax = (69878-grund)*0.28 + (profit-69878)*0.42  # approx avg 28% for first band
+        tax = (69878-grund)*0.28 + (profit-69878)*0.42
     else:
         tax = (69878-grund)*0.28 + (277825-69878)*0.42 + (profit-277825)*0.45
     return taxable, tax, tax, 0, f"Grundfreibetrag €{grund} | 14%→42% €12k-69k | 42% | 45%"
@@ -202,21 +254,8 @@ def extract_receipt_data(image_path):
         buf=io.BytesIO()
         img.save(buf, format="JPEG", quality=90)
         b64=base64.b64encode(buf.getvalue()).decode()
-        # Country-aware prompt
-        prompt = f"""You are a receipt OCR for {country}. Currency is {cur}.
-Extract shop name, total amount (number only, no symbol), date YYYY-MM-DD.
-This receipt uses {cur} currency. Return ONLY JSON like {{"shop":"Monsoon Foods","total":49.84,"date":"2026-11-05"}}
-If receipt shows £ or $ or € or ₦ or C$ or A$, ignore symbol and return number.
-For {country}, examples: UK shop Monsoon Foods £49.84, US Walmart $49.84, Nigeria Shoprite ₦49.84, Canada Loblaws C$49.84, Australia Woolworths A$49.84, Germany Edeka €49.84
-"""
-        resp=client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role":"user","content":[
-                {"type":"text","text":prompt},
-                {"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+b64}}
-            ]}],
-            max_tokens=300
-        )
+        prompt = f"You are a receipt OCR for {country}. Currency is {cur}. Extract shop name, total amount number only, date YYYY-MM-DD. Return ONLY JSON {{\"shop\":\"Monsoon Foods\",\"total\":49.84,\"date\":\"2026-11-05\"}}"
+        resp=client.chat.completions.create(model="gpt-4o-mini", messages=[{"role":"user","content":[{"type":"text","text":prompt},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+b64}}]}], max_tokens=300)
         txt=resp.choices[0].message.content
         m=re.search(r"\{.*\}", txt, re.DOTALL)
         if m:
@@ -387,9 +426,7 @@ if main_nav=="Dashboard":
     st.markdown(f"**Dashboard - {st.session_state.country} Tax 2026**")
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
-    taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, 0)  # dummy for info
-    # Get actual with current income
-    st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {bracket_info} | {len(df)} receipts total {cur}{total_exp:.2f}")
+    st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {len(df)} receipts total {cur}{total_exp:.2f}")
     col1,col2=st.columns(2)
     with col1:
         q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
@@ -404,11 +441,25 @@ if main_nav=="Dashboard":
     annual_income=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
     annual_profit=annual_income-total_exp
     taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, annual_profit)
-    c1,c2,c3=st.columns(3)
-    c1.metric("Expenses", f"{cur}{total_exp:.2f}"); c2.metric("Profit", f"{cur}{annual_profit:.2f}")
-    c3.metric("Tax", f"{cur}{total_annual:.2f}")
+    # FIXED: Show full amounts without ... truncation - use custom HTML instead of metrics that truncate
+    st.markdown(f"""
+    <div style="display:flex; gap:10px; margin:10px 0;">
+        <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
+            <div style="font-size:0.8rem; color:#64748b;">Expenses</div>
+            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{total_exp:.2f}</div>
+        </div>
+        <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
+            <div style="font-size:0.8rem; color:#64748b;">Profit</div>
+            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{annual_profit:.2f}</div>
+        </div>
+        <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
+            <div style="font-size:0.8rem; color:#64748b;">Tax</div>
+            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{total_annual:.2f}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     if annual_income>0:
-        st.success(f"{st.session_state.country} {cur} | Income {cur}{annual_income:.0f} | Profit {cur}{annual_profit:.0f} | Taxable {cur}{taxable:.0f} | Tax {cur}{total_annual:.0f}")
+        st.success(f"{st.session_state.country} {cur} | Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
         st.caption(f"Brackets: {bracket_info}")
     else:
         st.info(f"Enter Q1-Q4 income for {st.session_state.country} to see {cur} tax")
