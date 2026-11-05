@@ -179,6 +179,55 @@ CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Austra
 def get_currency():
     return CURRENCY_MAP.get(st.session_state.country, "£")
 
+
+def load_all_receipts_admin():
+    """Admin sees all users receipts across all countries"""
+    all_records=[]
+    try:
+        import glob
+        files=glob.glob("receipts_*.csv")
+        for f in files:
+            try:
+                df_tmp=pd.read_csv(f)
+                if not df_tmp.empty:
+                    # Extract user and country from filename receipts_{user}_{country}.csv
+                    parts=f.replace("receipts_","").replace(".csv","").split("_")
+                    if len(parts)>=2:
+                        user_part=parts[0]
+                        country_part=parts[-1]
+                        df_tmp["owner"]=user_part
+                        df_tmp["country_file"]=country_part
+                    all_records.append(df_tmp)
+            except:
+                continue
+        if all_records:
+            return pd.concat(all_records, ignore_index=True)
+    except:
+        pass
+    return pd.DataFrame()
+
+def get_admin_users_list():
+    try:
+        import glob
+        files=glob.glob("receipts_*.csv")
+        users=set()
+        for f in files:
+            try:
+                # receipts_{user}_{country}.csv
+                name=f.replace("receipts_","").replace(".csv","")
+                # split from right for country
+                for c in ["UK","US","Nigeria","Canada","Australia","Germany"]:
+                    if name.endswith("_"+c):
+                        user=name[:-len("_"+c)]
+                        users.add(f"{user} - {c}")
+                        break
+            except:
+                continue
+        return sorted(list(users))
+    except:
+        return []
+
+
 def calc_tax_uk(profit):
     pa=12570; taxable=max(0,profit-pa); rem=taxable; tax=0
     b1=min(rem,37700); tax+=b1*0.20; rem-=b1
@@ -384,20 +433,38 @@ def get_upload_dir():
     d=f"receipt_images_{uid}_{c}"; os.makedirs(d, exist_ok=True); return d
 
 def load_receipts():
+    # Admin sees all
+    if st.session_state.user_id=="admin":
+        df_all=load_all_receipts_admin()
+        if not df_all.empty:
+            return df_all
     if st.session_state.receipts_data:
         df = pd.DataFrame(st.session_state.receipts_data)
         if not df.empty:
             return df
     f=get_db_file()
     if not os.path.exists(f):
-        return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at"])
+        # Try to find file with case-insensitive or previous country
+        try:
+            import glob
+            pattern=f"receipts_{st.session_state.user_id}_*.csv"
+            files=glob.glob(pattern)
+            if files:
+                # Load first found
+                df=pd.read_csv(files[0])
+                if not df.empty:
+                    st.session_state.receipts_data = df.to_dict('records')
+                    return df
+        except:
+            pass
+        return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at","owner","country_file"])
     try:
         df=pd.read_csv(f)
         if not df.empty:
             st.session_state.receipts_data = df.to_dict('records')
         return df
     except:
-        return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at"])
+        return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at","owner","country_file"])
 
 def save_receipt(shop, date, total, category, filename, image_path=""):
     record={"date":date,"shop":shop,"total":float(total),"category":category,"filename":filename,"image_path":image_path,"created_at":datetime.now().strftime("%Y-%m-%d %H:%M")}
@@ -411,10 +478,10 @@ if not st.session_state.user_id:
     st.markdown("### 🌍 SimpleTax Global")
     st.markdown("**👋 Welcome - Easy Receipts Submission**")
     with st.form("login_form"):
-        user_code=st.text_input("code", placeholder="type a memorable name or code", label_visibility="collapsed")
+        user_code=st.text_input(placeholder="type a memorable name or code", label_visibility="collapsed")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -435,7 +502,7 @@ with col_h2:
         st.session_state.receipts_data=[]
         st.query_params.clear()
         st.rerun()
-    st.caption(f"Private: {st.session_state.user_id}")
+    st.caption(f"Name: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country: 
@@ -509,7 +576,12 @@ if main_nav=="Add":
                     st.rerun()
 
 if main_nav=="List":
-    st.markdown(f"**Receipts - List - {st.session_state.country} {cur}**")
+    if st.session_state.user_id=="admin":
+        st.markdown(f"**🔑 Admin - All Users Receipts - {st.session_state.country} {cur}**")
+        users=get_admin_users_list()
+        st.info(f"Admin view: {len(users)} user files found: {', '.join(users[:10])} | Total receipts across all users shown below")
+    else:
+        st.markdown(f"**Receipts - List - {st.session_state.country} {cur}**")
     df=load_receipts()
     if df.empty:
         st.info("No receipts yet - Add in Add tab")
@@ -537,21 +609,39 @@ if main_nav=="List":
                         st.rerun()
 
 if main_nav=="Dashboard":
-    st.markdown(f"**Dashboard - {st.session_state.country} Tax 2026**")
+    if st.session_state.user_id=="admin":
+        st.markdown(f"**🔑 Admin Dashboard - All Users - {st.session_state.country} Tax 2026**")
+        st.warning("Admin mode: You see ALL users receipts total. Use List tab to see per-user breakdown.")
+    else:
+        st.markdown(f"**Dashboard - {st.session_state.country} Tax 2026**")
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
     st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {len(df)} receipts total {cur}{total_exp:.2f}")
+    # Clear incomes button - fixes "clear returns back" issue
+    c_clear1, c_clear2 = st.columns([1,3])
+    with c_clear1:
+        if st.button("Clear All", type="secondary", key="clear_incomes", use_container_width=True):
+            st.session_state.q1=0.0; st.session_state.q2=0.0; st.session_state.q3=0.0; st.session_state.q4=0.0
+            try:
+                st.query_params["q1"]="0"; st.query_params["q2"]="0"; st.query_params["q3"]="0"; st.query_params["q4"]="0"
+            except:
+                pass
+            st.rerun()
+    with c_clear2:
+        st.caption("Click Clear All to set all Q incomes to 0. Or set each box to 0.")
+
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
-        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=st.session_state.q2, min_value=0.0, step=0.01, key="q2_input")
+        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=float(st.session_state.q1), min_value=0.0, step=0.01, key="q1_input")
+        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=float(st.session_state.q2), min_value=0.0, step=0.01, key="q2_input")
     with col2:
-        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=st.session_state.q3, min_value=0.0, step=0.01, key="q3_input")
-        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=st.session_state.q4, min_value=0.0, step=0.01, key="q4_input")
-    if q1!=st.session_state.q1: st.session_state.q1=q1
-    if q2!=st.session_state.q2: st.session_state.q2=q2
-    if q3!=st.session_state.q3: st.session_state.q3=q3
-    if q4!=st.session_state.q4: st.session_state.q4=q4
+        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=float(st.session_state.q3), min_value=0.0, step=0.01, key="q3_input")
+        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=float(st.session_state.q4), min_value=0.0, step=0.01, key="q4_input")
+    # Update session only if changed - and allow 0
+    if float(q1)!=float(st.session_state.q1): st.session_state.q1=float(q1)
+    if float(q2)!=float(st.session_state.q2): st.session_state.q2=float(q2)
+    if float(q3)!=float(st.session_state.q3): st.session_state.q3=float(st.session_state.q3)
+    if float(q4)!=float(st.session_state.q4): st.session_state.q4=float(q4)
     try:
         st.query_params["q1"]=str(st.session_state.q1)
         st.query_params["q2"]=str(st.session_state.q2)
