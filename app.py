@@ -257,6 +257,69 @@ def calc_tax_germany(profit):
         tax = (69878-grund)*0.28 + (277825-69878)*0.42 + (profit-277825)*0.45
     return taxable, tax, tax, 0, f"Grundfreibetrag €{grund} | 14%→42% €12k-69k | 42% | 45%"
 
+
+def get_tax_explanation(country, annual_income, total_exp, profit, taxable, total_tax, income_tax, ni, bracket_info):
+    cur = CURRENCY_MAP.get(country, "£")
+    exp = total_exp
+    if country=="UK":
+        return f"""**UK 2026/27:** You earned {cur}{annual_income:.2f} and spent {cur}{exp:.2f} on receipts, so profit is {cur}{profit:.2f}. The first £12,570 is tax-free Personal Allowance, so taxable is {cur}{taxable:.2f} and tax is {cur}{total_tax:.2f} (Income Tax {cur}{income_tax:.2f} at 20% + NI {cur}{ni:.2f} at 6%).
+
+**Breakdown:**
+- Income {cur}{annual_income:.2f} - Expenses {cur}{exp:.2f} = Profit {cur}{profit:.2f}
+- Taxable = Profit {cur}{profit:.2f} - PA £12,570 = {cur}{taxable:.2f}
+- Income Tax = {cur}{taxable:.2f} × 20% = {cur}{income_tax:.2f}
+- NI Class 4 = {cur}{taxable:.2f} × 6% = {cur}{ni:.2f}
+- **Total = {cur}{income_tax:.2f} + {cur}{ni:.2f} = {cur}{total_tax:.2f}**
+- Brackets: {bracket_info}
+"""
+    if country=="US":
+        return f"""**US 2026:** You earned {cur}{annual_income:.2f} with {cur}{exp:.2f} expenses, profit {cur}{profit:.2f}. Standard Deduction ${16100:.0f} is tax-free, so taxable is {cur}{taxable:.2f} and federal tax is {cur}{total_tax:.2f} at 10% rate.
+
+**Breakdown:**
+- Profit = {cur}{annual_income:.2f} - {cur}{exp:.2f} = {cur}{profit:.2f}
+- Taxable = Profit {cur}{profit:.2f} - Std Ded $16,100 = {cur}{taxable:.2f}
+- Tax = {cur}{taxable:.2f} × 10% (first bracket) = {cur}{total_tax:.2f}
+- Brackets: {bracket_info}
+"""
+    if country=="Nigeria":
+        return f"""**Nigeria Tax Act 2025 (2026):** You earned {cur}{annual_income:.2f} with {cur}{exp:.2f} expenses, profit {cur}{profit:.2f}. First ₦800k is tax-free, so taxable is {cur}{taxable:.2f} and tax is {cur}{total_tax:.2f}.
+
+**Breakdown:**
+- Profit = {cur}{annual_income:.2f} - {cur}{exp:.2f} = {cur}{profit:.2f}
+- Taxable = Profit {cur}{profit:.2f} - ₦800k = {cur}{taxable:.2f}
+- Tax = {cur}{taxable:.2f} × 15% (second bracket) = {cur}{total_tax:.2f}
+- Brackets: {bracket_info}
+"""
+    if country=="Canada":
+        return f"""**Canada 2026:** You earned {cur}{annual_income:.2f} with {cur}{exp:.2f} expenses, profit {cur}{profit:.2f}. Basic Personal Amount C$16,452 is tax-free, so taxable is {cur}{taxable:.2f} and federal tax is {cur}{total_tax:.2f} at 14%.
+
+**Breakdown:**
+- Profit = {cur}{annual_income:.2f} - {cur}{exp:.2f} = {cur}{profit:.2f}
+- Taxable = Profit {cur}{profit:.2f} - BPA $16,452 = {cur}{taxable:.2f}
+- Tax = {cur}{taxable:.2f} × 14% = {cur}{total_tax:.2f}
+- Brackets: {bracket_info}
+"""
+    if country=="Australia":
+        return f"""**Australia 2026-27:** You earned {cur}{annual_income:.2f} with {cur}{exp:.2f} expenses, profit {cur}{profit:.2f}. First A$18,200 is tax-free, so taxable is {cur}{profit:.2f} and tax is {cur}{total_tax:.2f} including 2% Medicare.
+
+**Breakdown:**
+- Profit = {cur}{annual_income:.2f} - {cur}{exp:.2f} = {cur}{profit:.2f}
+- Taxable = {cur}{taxable:.2f} (above $18.2k)
+- Income Tax = {cur}{income_tax:.2f} at 15% + Medicare {cur}{ni:.2f} at 2% = {cur}{total_tax:.2f}
+- Brackets: {bracket_info}
+"""
+    if country=="Germany":
+        return f"""**Germany 2026:** You earned {cur}{annual_income:.2f} with {cur}{exp:.2f} expenses, profit {cur}{profit:.2f}. Grundfreibetrag €12,348 is tax-free, so taxable is {cur}{taxable:.2f} and tax is {cur}{total_tax:.2f} at 14% starting rate.
+
+**Breakdown:**
+- Profit = {cur}{annual_income:.2f} - {cur}{exp:.2f} = {cur}{profit:.2f}
+- Taxable = Profit {cur}{profit:.2f} - €12,348 = {cur}{taxable:.2f}
+- Tax = {cur}{taxable:.2f} × ~14-20% avg = {cur}{total_tax:.2f}
+- Brackets: {bracket_info}
+"""
+    return f"Country {country} | Profit {cur}{profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_tax:.2f} | {bracket_info}"
+
+
 def calc_tax_for_country(country, profit):
     if country=="UK": return calc_tax_uk(profit)
     if country=="US": return calc_tax_us(profit)
@@ -351,7 +414,7 @@ if not st.session_state.user_id:
         user_code=st.text_input("code", placeholder="type a memorable name or code", label_visibility="collapsed")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -372,7 +435,7 @@ with col_h2:
         st.session_state.receipts_data=[]
         st.query_params.clear()
         st.rerun()
-    st.caption(f"Name: {st.session_state.user_id}")
+    st.caption(f"Private: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country: 
@@ -519,8 +582,24 @@ if main_nav=="Dashboard":
     if annual_income>0:
         st.success(f"{st.session_state.country} {cur} | Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
         st.caption(f"Brackets: {bracket_info}")
+        # 2-sentence breakdown dropdown for all countries
+        explanation = get_tax_explanation(st.session_state.country, annual_income, total_exp, annual_profit, taxable, total_annual, income_tax, ni_val, bracket_info)
+        with st.expander(f"📖 Explain this tax - How {cur}{total_annual:.2f} calculated? (2 sentences)", expanded=False):
+            st.markdown(explanation)
+            st.info(f"**In 2 sentences:** You made {cur}{annual_income:.2f} income, spent {cur}{total_exp:.2f}, profit {cur}{annual_profit:.2f}. After {cur}{taxable:.2f} taxable allowance, you pay {cur}{total_annual:.2f} tax under {st.session_state.country} 2026 rules.")
     else:
         st.info(f"Enter Q1-Q4 income for {st.session_state.country} to see {cur} tax")
+        with st.expander(f"📖 How {st.session_state.country} tax works (2 sentences)", expanded=False):
+            st.markdown(f"""
+**{st.session_state.country} 2026 Brackets:** {bracket_info}
+
+**UK example:** Earn £14k, spend £49.84, profit £13,950.16, taxable £1,380.16 after £12,570 PA, tax £358.84 (20% + 6% NI).
+**US example:** Earn $14k, spend $49.84, profit $13,950, taxable $0 after $16,100 std ded, tax $0.
+**Nigeria:** Earn ₦14k, spend ₦49.84, profit ₦13,950, taxable ₦0 after ₦800k relief, tax ₦0.
+**Canada:** Earn C$14k, spend C$49.84, profit C$13,950, taxable C$0 after BPA $16,452, tax $0.
+**Australia:** Earn A$14k, spend A$49.84, profit A$13,950, taxable A$0 after $18,200, tax $0.
+**Germany:** Earn €14k, spend €49.84, profit €13,950, taxable €1,602 after €12,348 Grundfreibetrag, tax ~€224.
+            """)
 
 if main_nav=="Accountant":
     st.markdown(f"**Send to Accountant - {st.session_state.country} {cur}**")
