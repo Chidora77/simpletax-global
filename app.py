@@ -478,7 +478,7 @@ if not st.session_state.user_id:
     st.markdown("### 🌍 SimpleTax Global")
     st.markdown("**👋 Welcome - Easy Receipts Submission**")
     with st.form("login_form"):
-        user_code=st.text_input(placeholder="type a memorable name or code", label_visibility="collapsed")
+        user_code=st.text_input("code", placeholder="type a memorable name or code", label_visibility="collapsed")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
         submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
