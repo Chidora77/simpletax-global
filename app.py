@@ -124,6 +124,19 @@ if "logout" in st.query_params:
 CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Australia": "A$", "Germany": "€"}
 def get_currency(): return CURRENCY_MAP.get(st.session_state.country, "£")
 
+# FISCAL YEAR DYNAMIC PER COUNTRY
+FISCAL_YEAR_MAP = {
+    "UK": {"Q1": "Apr-Jun", "Q2": "Jul-Sep", "Q3": "Oct-Dec", "Q4": "Jan-Mar", "label": "UK FY Apr-Mar"},
+    "Canada": {"Q1": "Apr-Jun", "Q2": "Jul-Sep", "Q3": "Oct-Dec", "Q4": "Jan-Mar", "label": "Canada FY Apr-Mar"},
+    "US": {"Q1": "Jan-Mar", "Q2": "Apr-Jun", "Q3": "Jul-Sep", "Q4": "Oct-Dec", "label": "US Calendar Jan-Dec"},
+    "Germany": {"Q1": "Jan-Mar", "Q2": "Apr-Jun", "Q3": "Jul-Sep", "Q4": "Oct-Dec", "label": "Germany Calendar Jan-Dec"},
+    "Nigeria": {"Q1": "Jan-Mar", "Q2": "Apr-Jun", "Q3": "Jul-Sep", "Q4": "Oct-Dec", "label": "Nigeria Calendar Jan-Dec"},
+    "Australia": {"Q1": "Jul-Sep", "Q2": "Oct-Dec", "Q3": "Jan-Mar", "Q4": "Apr-Jun", "label": "Australia FY Jul-Jun"},
+}
+def get_fiscal(country):
+    return FISCAL_YEAR_MAP.get(country, FISCAL_YEAR_MAP["US"])
+
+
 def calc_tax_uk(profit):
     pa=12570; taxable=max(0,profit-pa); rem=taxable; tax=0
     b1=min(rem,37700); tax+=b1*0.20; rem-=b1
@@ -228,7 +241,7 @@ if not st.session_state.user_id:
         user_code=st.text_input("MemorableCode", placeholder="type a memorable name or code", label_visibility="collapsed", key="login_code_input")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -246,7 +259,7 @@ with col_h2:
         try: st.query_params.clear()
         except: pass
         st.rerun()
-    st.caption(f"Private: {st.session_state.user_id}")
+    st.caption(f"Name: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country:
@@ -349,13 +362,15 @@ if main_nav=="Dashboard":
             st.rerun()
     with c_clear2: st.caption("Delete = set to 0")
 
+    fiscal = get_fiscal(st.session_state.country)
+    st.caption(f"{fiscal['label']} | Q1:{fiscal['Q1']} Q2:{fiscal['Q2']} Q3:{fiscal['Q3']} Q4:{fiscal['Q4']}")
     col1,col2=st.columns(2)
     with col1:
-        q1_str=st.text_input(f"Q1 Income (Apr-Jul) {cur}", value=str(int(st.session_state.q1) if st.session_state.q1==int(st.session_state.q1) else st.session_state.q1), key="q1_text", placeholder="0")
-        q2_str=st.text_input(f"Q2 Income (Jul-Oct) {cur}", value=str(int(st.session_state.q2) if st.session_state.q2==int(st.session_state.q2) else st.session_state.q2), key="q2_text", placeholder="0")
+        q1_str=st.text_input(f"Q1 Income ({fiscal['Q1']}) {cur}", value=str(int(st.session_state.q1) if st.session_state.q1==int(st.session_state.q1) else st.session_state.q1), key="q1_text", placeholder="0")
+        q2_str=st.text_input(f"Q2 Income ({fiscal['Q2']}) {cur}", value=str(int(st.session_state.q2) if st.session_state.q2==int(st.session_state.q2) else st.session_state.q2), key="q2_text", placeholder="0")
     with col2:
-        q3_str=st.text_input(f"Q3 Income (Oct-Jan) {cur}", value=str(int(st.session_state.q3) if st.session_state.q3==int(st.session_state.q3) else st.session_state.q3), key="q3_text", placeholder="0")
-        q4_str=st.text_input(f"Q4 Income (Jan-Apr) {cur}", value=str(int(st.session_state.q4) if st.session_state.q4==int(st.session_state.q4) else st.session_state.q4), key="q4_text", placeholder="0")
+        q3_str=st.text_input(f"Q3 Income ({fiscal['Q3']}) {cur}", value=str(int(st.session_state.q3) if st.session_state.q3==int(st.session_state.q3) else st.session_state.q3), key="q3_text", placeholder="0")
+        q4_str=st.text_input(f"Q4 Income ({fiscal['Q4']}) {cur}", value=str(int(st.session_state.q4) if st.session_state.q4==int(st.session_state.q4) else st.session_state.q4), key="q4_text", placeholder="0")
     
     def parse_income(s):
         try:
@@ -390,10 +405,10 @@ if main_nav=="Dashboard":
         st.success(f"{cur} Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
 
 if main_nav=="Accountant":
-    # FORCE reload from correct country file - prevents ₦ showing as £
-    st.session_state.receipts_data = []  # Clear stale
+    st.session_state.receipts_data = []
     df=load_receipts()
-    st.markdown(f"**Send to Accountant - {st.session_state.country} ({cur})**")
+    fiscal = get_fiscal(st.session_state.country)
+    st.markdown(f"**Send to Accountant - {st.session_state.country} ({cur}) - {fiscal['label']}**")
     if df.empty: st.info(f"No receipts yet for {st.session_state.country} - {cur}")
     else:
         st.success(f"{len(df)} receipts for {st.session_state.country} - Total {cur}{df['total'].sum():.2f}")
@@ -403,9 +418,27 @@ if main_nav=="Accountant":
         profit=qi-df["total"].sum()
         taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, profit)
         st.markdown("### Preview")
-        # DYNAMIC preview - country and currency from current selection
-        preview_text=f"Hello,\n\nPlease find my records ({st.session_state.country} - {cur}):\n\n- Name: {your_name}\n- Country: {st.session_state.country}\n- Currency: {cur}\n- Annual Income: {cur}{qi:.2f} (Q1 {cur}{st.session_state.q1:.2f} + Q2 {cur}{st.session_state.q2:.2f} + Q3 {cur}{st.session_state.q3:.2f} + Q4 {cur}{st.session_state.q4:.2f})\n- Total Expenses: {cur}{df['total'].sum():.2f} ({len(df)} receipts)\n- Annual Profit: {cur}{profit:.2f}\n- Taxable Profit: {cur}{taxable:.2f}\n- Estimated Tax: {cur}{total_annual:.2f} ({bracket_info})\n\nReceipts breakdown:\n"
+        preview_text=f"Hello,
+
+Please find my records ({st.session_state.country} - {cur}) - {fiscal['label']}:
+
+- Name: {your_name}
+- Country: {st.session_state.country}
+- Currency: {cur}
+- Fiscal Year: {fiscal['label']}
+- Annual Income: {cur}{qi:.2f} (Q1 {fiscal['Q1']} {cur}{st.session_state.q1:.2f} + Q2 {fiscal['Q2']} {cur}{st.session_state.q2:.2f} + Q3 {fiscal['Q3']} {cur}{st.session_state.q3:.2f} + Q4 {fiscal['Q4']} {cur}{st.session_state.q4:.2f})
+- Total Expenses: {cur}{df['total'].sum():.2f} ({len(df)} receipts)
+- Annual Profit: {cur}{profit:.2f}
+- Taxable Profit: {cur}{taxable:.2f}
+- Estimated Tax: {cur}{total_annual:.2f} ({bracket_info})
+
+Receipts breakdown:
+"
         for i, r in df.iterrows():
-            preview_text+=f"  {i+1}. {r['date']} - {r['shop']} - {cur}{float(r['total']):.2f}\n"
-        preview_text+=f"\nThanks,\n{your_name}\n"
-        st.text_area("Preview", preview_text, height=280, key="preview_simple", label_visibility="collapsed")
+            preview_text+=f"  {i+1}. {r['date']} - {r['shop']} - {cur}{float(r['total']):.2f}
+"
+        preview_text+=f"
+Thanks,
+{your_name}
+"
+        st.text_area("Preview", preview_text, height=300, key="preview_simple", label_visibility="collapsed")
