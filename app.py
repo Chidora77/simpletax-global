@@ -20,27 +20,41 @@ a[data-testid="stLinkButton"] {
     color: white !important; border-color: #1e40af !important; border-radius: 10px !important;
 }
 
-/* RADIO BLUE - STRONGEST */
+/* === RADIO BLUE - NUCLEAR FIX === */
+* { --primary: #1e40af !important; }
 input[type="radio"] { accent-color: #1e40af !important; }
-div[data-baseweb="radio"] input { accent-color: #1e40af !important; }
-div[data-baseweb="radio"] { --accent: #1e40af !important; }
-div[data-baseweb="radio"] > div > div:first-child {
+
+div[data-baseweb="radio"] * {
     border-color: #1e40af !important;
-    border-width: 2px !important;
 }
-div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle,
-span[data-baseweb="radioMarkInner"], span[data-baseweb="radioMarkOuter"] {
+div[data-baseweb="radio"] div[data-checked="true"] {
+    background-color: #1e40af !important;
+    border-color: #1e40af !important;
+}
+div[data-baseweb="radio"] svg {
     fill: #1e40af !important;
-    background-color: #1e40af !important;
-    border-color: #1e40af !important;
-    stroke: #1e40af !important;
+    color: #1e40af !important;
 }
-div[data-baseweb="radio"] div[aria-checked="true"] {
+div[data-baseweb="radio"] svg circle {
+    fill: #1e40af !important;
+    stroke: #1e40af !important;
+    r: 5 !important;
+}
+div[data-baseweb="radio"] span {
     background-color: #1e40af !important;
     border-color: #1e40af !important;
+}
+/* Force outer circle blue border */
+div[data-baseweb="radio"] > div:first-child {
+    border: 2px solid #1e40af !important;
+}
+/* Inner dot - the actual red dot */
+div[data-baseweb="radio"] > div:first-child > div {
+    background-color: #1e40af !important;
+    background: #1e40af !important;
 }
 
-/* FIX OVERLAPPING LABELS - Description, Total, Date */
+/* FIX OVERLAPPING LABELS */
 label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label,
 div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
     margin-bottom: 6px !important;
@@ -48,26 +62,17 @@ div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
     display: block !important;
     position: relative !important;
     z-index: 1 !important;
-    background: transparent !important;
     color: #1e293b !important;
     font-size: 0.9rem !important;
 }
-div[data-testid="stTextInput"], div[data-testid="stNumberInput"], div[data-testid="stSelectbox"] {
-    margin-top: 4px !important;
-    padding-top: 2px !important;
-}
 div[data-testid="stTextInput"] input,
-div[data-testid="stNumberInput"] input,
-div[data-testid="stTextInput"] textarea {
+div[data-testid="stNumberInput"] input {
     border: 1.5px solid #94a3b8 !important;
     background-color: white !important;
     border-radius: 8px !important;
-    color: #1e293b !important;
     margin-top: 2px !important;
 }
-
-/* ACCOUNTANT FIELDS VISIBLE */
-div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea {
+div[data-testid="stTextArea"] textarea {
     border: 1.5px solid #94a3b8 !important;
     background: white !important;
 }
@@ -77,41 +82,73 @@ div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea {
 st.components.v1.html("""
 <script>
 (function(){
-  function forceBlue(){
+  function forceBlueNuclear(){
     try{
       const doc = window.parent.document;
-      if(!doc.getElementById('blue-v9')){
+      // Inject style tag
+      if(!doc.getElementById('blue-v10-nuclear')){
         const s=doc.createElement('style');
-        s.id='blue-v9';
+        s.id='blue-v10-nuclear';
         s.textContent=`
+          *{--primary:#1e40af !important;}
           input[type="radio"]{accent-color:#1e40af !important;}
-          div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important; border-color:#1e40af !important;}
-          button, [data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button, a[data-testid="stLinkButton"]{background:#1e40af !important; color:white !important;}
-          label{margin-bottom:6px !important;}
-          div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input{border:1.5px solid #94a3b8 !important; background:white !important; margin-top:2px !important;}
+          div[data-baseweb="radio"] *{border-color:#1e40af !important;}
+          div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important; stroke:#1e40af !important;}
+          div[data-baseweb="radio"] > div:first-child > div{background:#1e40af !important; background-color:#1e40af !important;}
+          button, [data-testid="stButton"] button{background:#1e40af !important; color:white !important;}
         `;
         doc.head.appendChild(s);
       }
-      doc.querySelectorAll('button, a[data-testid="stLinkButton"]').forEach(b=>{
-        b.style.setProperty('background-color','#1e40af','important');
-        b.style.setProperty('color','white','important');
-      });
+      // Force all radio-related elements blue
       doc.querySelectorAll('input[type="radio"]').forEach(r=>{
         r.style.setProperty('accent-color','#1e40af','important');
+        r.style.setProperty('color','#1e40af','important');
       });
-      doc.querySelectorAll('div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] div[aria-checked="true"]').forEach(el=>{
+      // The actual dots
+      const selectors = [
+        'div[data-baseweb="radio"] svg',
+        'div[data-baseweb="radio"] svg circle',
+        'div[data-baseweb="radio"] div',
+        'span[data-baseweb="radioMarkInner"]',
+        'span[data-baseweb="radioMarkOuter"]',
+        'div[data-baseweb="radio"] > div:first-child > div',
+        'div[data-baseweb="radio"] [data-checked="true"]'
+      ];
+      selectors.forEach(sel=>{
+        doc.querySelectorAll(sel).forEach(el=>{
+          try{
+            if(el.getAttribute('fill') && el.getAttribute('fill').toLowerCase() !== 'none'){
+              el.setAttribute('fill','#1e40af');
+            }
+            el.style.setProperty('fill','#1e40af','important');
+            el.style.setProperty('background','#1e40af','important');
+            el.style.setProperty('background-color','#1e40af','important');
+            el.style.setProperty('border-color','#1e40af','important');
+            el.style.setProperty('stroke','#1e40af','important');
+            // Remove red inline styles
+            if(el.style.backgroundColor.includes('255, 75, 75') || el.style.backgroundColor.includes('ff4b4b') || el.style.fill.includes('ff4b4b')){
+              el.style.setProperty('background-color','#1e40af','important');
+              el.style.setProperty('fill','#1e40af','important');
+            }
+          }catch(e){}
+        });
+      });
+      // Also catch any element with red computed style
+      doc.querySelectorAll('*').forEach(el=>{
         try{
-          el.style.setProperty('fill','#1e40af','important');
-          el.style.setProperty('background-color','#1e40af','important');
-          el.style.setProperty('border-color','#1e40af','important');
-          el.style.setProperty('accent-color','#1e40af','important');
+          const bg = window.getComputedStyle(el).backgroundColor;
+          const fill = el.style.fill || '';
+          if(bg === 'rgb(255, 75, 75)' || fill.toLowerCase() === '#ff4b4b' || fill.toLowerCase() === 'rgb(255, 75, 75)'){
+            el.style.setProperty('background-color','#1e40af','important');
+            el.style.setProperty('fill','#1e40af','important');
+          }
         }catch(e){}
       });
     }catch(e){}
   }
-  forceBlue();
-  setInterval(forceBlue, 400);
-  try{ new MutationObserver(forceBlue).observe(window.parent.document.body,{childList:true,subtree:true}); }catch(e){}
+  forceBlueNuclear();
+  setInterval(forceBlueNuclear, 300);
+  try{ new MutationObserver(forceBlueNuclear).observe(window.parent.document.body,{childList:true,subtree:true,attributes:true}); }catch(e){}
 })();
 </script>
 """, height=0)
