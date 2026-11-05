@@ -38,9 +38,21 @@ div[data-testid="stMetricValue"] {
 div[data-testid="stMetricLabel"] { font-size: 0.8rem !important; white-space: nowrap !important; }
 
 /* LABELS NOT OVERLAPPING */
-label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
+label, div[data-testid="stTextInput"] label:not([data-testid="collapsed"]), div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
     margin-bottom: 6px !important; padding-bottom: 4px !important; display: block !important; position: relative !important; color: #1e293b !important; font-size: 0.9rem !important;
 }
+
+
+/* Hide "code" label on login screen */
+div[data-testid="stTextInput"]:has(input[aria-label="MemorableCode"]) label,
+div[data-testid="stTextInput"]:has(#login_code_input) label,
+label[for="login_code_input"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* Also hide any label that contains exactly "code" */
 
 /* INPUTS - DEFAULT BLACK BORDER, WHITE BG, NO RED */
 div[data-testid="stTextInput"] input,
@@ -478,7 +490,7 @@ if not st.session_state.user_id:
     st.markdown("### 🌍 SimpleTax Global")
     st.markdown("**👋 Welcome - Easy Receipts Submission**")
     with st.form("login_form"):
-        user_code=st.text_input("code", placeholder="type a memorable name or code", label_visibility="collapsed")
+        user_code=st.text_input("MemorableCode", placeholder="type a memorable name or code", label_visibility="collapsed", key="login_code_input")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
         submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
