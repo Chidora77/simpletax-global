@@ -13,49 +13,63 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {background-color: #eef2f
 .block-container {background-color: #eef2f7 !important; max-width: 430px !important;}
 #MainMenu, header, footer, [data-testid="stToolbar"] {display: none !important;}
 
-/* ALL BUTTONS BLUE */
+/* BUTTONS BLUE */
 button, div[data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
 a[data-testid="stLinkButton"] {
     background-color: #1e40af !important; background: #1e40af !important;
     color: white !important; border-color: #1e40af !important; border-radius: 10px !important;
 }
 
-/* RADIO BLUE - accent-color + fill */
+/* RADIO BLUE - STRONGEST */
 input[type="radio"] { accent-color: #1e40af !important; }
-div[data-baseweb="radio"] { accent-color: #1e40af !important; }
+div[data-baseweb="radio"] input { accent-color: #1e40af !important; }
+div[data-baseweb="radio"] { --accent: #1e40af !important; }
+div[data-baseweb="radio"] > div > div:first-child {
+    border-color: #1e40af !important;
+    border-width: 2px !important;
+}
 div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle,
-span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] div {
+span[data-baseweb="radioMarkInner"], span[data-baseweb="radioMarkOuter"] {
     fill: #1e40af !important;
     background-color: #1e40af !important;
     border-color: #1e40af !important;
     stroke: #1e40af !important;
 }
-div[data-baseweb="radio"] > div:first-child { border-color: #1e40af !important; }
+div[data-baseweb="radio"] div[aria-checked="true"] {
+    background-color: #1e40af !important;
+    border-color: #1e40af !important;
+}
 
-/* INCOME FIELDS - VISIBLE BORDER + WHITE BG */
-div[data-testid="stNumberInput"] input,
+/* FIX OVERLAPPING LABELS - Description, Total, Date */
+label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label,
+div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
+    margin-bottom: 6px !important;
+    padding-bottom: 4px !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
+    background: transparent !important;
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+}
+div[data-testid="stTextInput"], div[data-testid="stNumberInput"], div[data-testid="stSelectbox"] {
+    margin-top: 4px !important;
+    padding-top: 2px !important;
+}
 div[data-testid="stTextInput"] input,
-div[data-testid="stTextInput"] textarea,
-input[type="number"], input[type="text"] {
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextInput"] textarea {
     border: 1.5px solid #94a3b8 !important;
     background-color: white !important;
     border-radius: 8px !important;
     color: #1e293b !important;
-}
-div[data-testid="stNumberInput"] > div, div[data-testid="stTextInput"] > div {
-    border: 1.5px solid #94a3b8 !important;
-    background: white !important;
-    border-radius: 8px !important;
+    margin-top: 2px !important;
 }
 
-/* ACCOUNTANT FIELDS SAME */
-div[data-testid="stTextInput"] { border: 1.5px solid #cbd5e1 !important; background: white !important; border-radius: 8px !important; }
-
-/* PREVIEW BOX */
-div[data-testid="stTextArea"] textarea {
+/* ACCOUNTANT FIELDS VISIBLE */
+div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea {
     border: 1.5px solid #94a3b8 !important;
     background: white !important;
-    border-radius: 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -66,14 +80,15 @@ st.components.v1.html("""
   function forceBlue(){
     try{
       const doc = window.parent.document;
-      if(!doc.getElementById('blue-v8')){
+      if(!doc.getElementById('blue-v9')){
         const s=doc.createElement('style');
-        s.id='blue-v8';
+        s.id='blue-v9';
         s.textContent=`
           input[type="radio"]{accent-color:#1e40af !important;}
+          div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important; border-color:#1e40af !important;}
           button, [data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button, a[data-testid="stLinkButton"]{background:#1e40af !important; color:white !important;}
-          div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;}
-          div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input{border:1.5px solid #94a3b8 !important; background:white !important;}
+          label{margin-bottom:6px !important;}
+          div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input{border:1.5px solid #94a3b8 !important; background:white !important; margin-top:2px !important;}
         `;
         doc.head.appendChild(s);
       }
@@ -81,14 +96,16 @@ st.components.v1.html("""
         b.style.setProperty('background-color','#1e40af','important');
         b.style.setProperty('color','white','important');
       });
-      doc.querySelectorAll('input[type="radio"]').forEach(r=>{ r.style.setProperty('accent-color','#1e40af','important'); });
-      doc.querySelectorAll('div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]').forEach(el=>{
-        el.style.setProperty('fill','#1e40af','important');
-        el.style.setProperty('background-color','#1e40af','important');
+      doc.querySelectorAll('input[type="radio"]').forEach(r=>{
+        r.style.setProperty('accent-color','#1e40af','important');
       });
-      doc.querySelectorAll('div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input, textarea').forEach(inp=>{
-        inp.style.setProperty('border','1.5px solid #94a3b8','important');
-        inp.style.setProperty('background','white','important');
+      doc.querySelectorAll('div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] div[aria-checked="true"]').forEach(el=>{
+        try{
+          el.style.setProperty('fill','#1e40af','important');
+          el.style.setProperty('background-color','#1e40af','important');
+          el.style.setProperty('border-color','#1e40af','important');
+          el.style.setProperty('accent-color','#1e40af','important');
+        }catch(e){}
       });
     }catch(e){}
   }
@@ -328,7 +345,7 @@ if main_nav=="Dashboard":
     st.caption(f"Loaded {len(df)} receipts, total £{total_exp:.2f}")
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input("Q1 Income (Apr-Jul)", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input", help="Enter amount")
+        q1=st.number_input("Q1 Income (Apr-Jul)", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
         q2=st.number_input("Q2 Income (Jul-Oct)", value=st.session_state.q2, min_value=0.0, step=0.01, key="q2_input")
     with col2:
         q3=st.number_input("Q3 Income (Oct-Jan)", value=st.session_state.q3, min_value=0.0, step=0.01, key="q3_input")
@@ -354,15 +371,13 @@ if main_nav=="Accountant":
     if df.empty:
         st.info("No receipts - Add in Add tab")
     else:
-        st.success(f"{len(df)} receipts ready - Private for {st.session_state.user_id}")
-        # VISIBLE FIELDS WITH BORDER
-        your_name=st.text_input("Your name", value=st.session_state.user_id, key="acct_name", help="Your name for email signature")
-        accountant_email=st.text_input("Accountant email", value="accountant@example.com", key="acct_email", help="Accountant email address")
+        st.success(f"{len(df)} receipts ready")
+        your_name=st.text_input("Your name", value=st.session_state.user_id, key="acct_name")
+        accountant_email=st.text_input("Accountant email", value="accountant@example.com", key="acct_email")
         qi=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
         profit=qi-df["total"].sum()
-        # DYNAMIC PREVIEW - updates as you type name
-        st.markdown("### Preview - Dynamic")
-        st.caption(f"Updates as you type name - Thanks, {your_name}")
+        # FIXED PREVIEW - removed Dynamic labels and Private line
+        st.markdown("### Preview")
         preview_text=f"""Hello,
 
 Please find my MTD records:
@@ -375,10 +390,8 @@ Please find my MTD records:
 
 Thanks,
 {your_name}
-
-Private: {st.session_state.user_id} - {st.session_state.country}
 """
-        st.text_area("Email Preview (dynamic with your name)", preview_text, height=220, key="preview_dynamic")
+        st.text_area("Preview", preview_text, height=200, key="preview_simple", label_visibility="collapsed")
         st.download_button("Download CSV", df.to_csv(index=False).encode(), "MTD.csv", "text/csv", use_container_width=True, type="secondary")
         import urllib.parse
         st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote('MTD Records - '+your_name)}&body={urllib.parse.quote(preview_text)}", use_container_width=True, type="secondary")
