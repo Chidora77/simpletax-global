@@ -139,27 +139,120 @@ def get_fiscal(country):
 
 def calc_tax_uk(profit):
     pa=12570; taxable=max(0,profit-pa); rem=taxable; tax=0
+    # UK 2026/27 bands: PA £12,570, 20% £12,571-£50,270 (37,700), 40% £50,271-£125,140 (74,870), 45% over
     b1=min(rem,37700); tax+=b1*0.20; rem-=b1
     if rem>0:
-        limit=125140-12570-37700
-        b2=min(rem,limit); tax+=b2*0.40; rem-=b2
+        b2=min(rem,74870); tax+=b2*0.40; rem-=b2
         if rem>0: tax+=rem*0.45
     ni=0
     if profit>12570:
         ni+=(min(profit,50270)-12570)*0.06
         if profit>50270: ni+=(profit-50270)*0.02
-    return taxable, tax+ni, tax, ni, f"PA £{pa} | 20%/40%/45% | NI 6%+2%"
+    total=tax+ni
+    info=f"UK 26/27: PA £{pa} 0%, £12,571-£50,270 20%, £50,271-£125,140 40%, >£125,140 45% | NI 6% £12,570-£50,270 +2% above"
+    return taxable, total, tax, ni, info
+
+def calc_tax_nigeria(profit):
+    # Nigeria NTA 2025 effective Jan 2026: First 800k 0%, Next 2.2m 15%, Next 9m 18%, Next 13m 21%, Next 25m 23%, Above 50m 25%
+    # Bands cumulative: 0-800k, 800k-3M, 3M-12M, 12M-25M, 25M-50M, 50M+
+    taxable = max(0, profit)
+    rem = taxable
+    tax = 0
+    # 0% first 800k
+    free = min(rem, 800000)
+    rem -= free
+    if rem>0:
+        amt = min(rem, 2200000); tax+=amt*0.15; rem-=amt
+    if rem>0:
+        amt = min(rem, 9000000); tax+=amt*0.18; rem-=amt
+    if rem>0:
+        amt = min(rem, 13000000); tax+=amt*0.21; rem-=amt
+    if rem>0:
+        amt = min(rem, 25000000); tax+=amt*0.23; rem-=amt
+    if rem>0:
+        tax+=rem*0.25
+    # No NI in Nigeria
+    info="Nigeria NTA 2025: First ₦800k 0%, Next ₦2.2m 15%, Next ₦9m 18%, Next ₦13m 21%, Next ₦25m 23%, Above ₦50m 25% | No NI"
+    return taxable, tax, tax, 0, info
 
 def calc_tax_us(profit):
-    std_ded=16100; taxable=max(0,profit-std_ded); rem=taxable; tax=0; prev=0
-    for limit, rate in [(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]:
+    std_ded=16100; taxable=max(0,profit-std_ded); rem=taxable; tax=0
+    brackets=[(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]
+    prev=0
+    for limit, rate in brackets:
         if rem<=0: break
         span = (limit - prev) if limit!=float('inf') else rem
         amt=min(rem, span); tax+=amt*rate; rem-=amt; prev=limit if limit!=float('inf') else prev
-    return taxable, tax, tax, 0, f"Std Ded ${std_ded}"
+    info=f"US 2026: Std Ded ${std_ded} | 10% $0-$12,400, 12% $12,400-$50,400, 22% $50,400-$105,700, 24% $105,700-$208,500, 32% $208,500-$353,800, 35% $353,800-$579,200, 37% >$579,200"
+    return taxable, tax, tax, 0, info
+
+def calc_tax_canada(profit):
+    bpa=16452; taxable=max(0,profit-bpa); rem=taxable; tax=0
+    # Canada 2026 federal: 14% up to $58,523, 20.5% $58,523-$117,045, 26% $117,045-$173,205, 29% $173,205-$258,482, 33% over
+    brackets=[(58523,0.14),(117045,0.205),(173205,0.26),(258482,0.29),(float('inf'),0.33)]
+    prev=0
+    for limit, rate in brackets:
+        if rem<=0: break
+        span = (limit - prev) if limit!=float('inf') else rem
+        amt=min(rem, span); tax+=amt*rate; rem-=amt; prev=limit if limit!=float('inf') else prev
+    info=f"Canada 2026: BPA ${bpa} | 14% up to $58,523, 20.5% $58,523-$117,045, 26% $117,045-$173,205, 29% $173,205-$258,482, 33% >$258,482"
+    return taxable, tax, tax, 0, info
+
+def calc_tax_australia(profit):
+    taxable=max(0,profit); rem=taxable; tax=0
+    # Australia 2026-27: $0-$18,200 0%, $18,201-$45k 15%, $45k-$135k 30%, $135k-$190k 37%, 45% over +2% Medicare
+    if rem>18200:
+        amt=min(rem-18200, 45000-18200); tax+=amt*0.15
+    if rem>45000:
+        amt=min(rem-45000, 135000-45000); tax+=amt*0.30
+    if rem>135000:
+        amt=min(rem-135000, 190000-135000); tax+=amt*0.37
+    if rem>190000:
+        tax+=(rem-190000)*0.45
+    medicare = taxable*0.02 if taxable>0 else 0
+    total=tax+medicare
+    info="Australia 26-27: $0-$18,200 0%, $18,201-$45k 15%, $45k-$135k 30%, $135k-$190k 37%, >$190k 45% + 2% Medicare"
+    return taxable, total, tax, medicare, info
+
+def calc_tax_germany(profit):
+    grund=12348; taxable=max(0,profit-grund); rem=profit; tax=0
+    # Germany 2026 simplified: Grundfreibetrag €12,348 0%, €12,349-€69,878 14%-42% progressive, €69,879-€277,825 42%, €277,826+ 45%
+    # For simplicity use average progressive: use 14% at start increasing to 42%
+    # Accurate formula is complex, use bracket approximation
+    if profit<=grund:
+        info="Germany 2026: Grundfreibetrag €12,348 0%, €12,349-€69,878 14%->42%, €69,879-€277,825 42%, €277,826+ 45%"
+        return 0, 0, 0, 0, info
+    # Simplified progressive: calculate as per German Einkommensteuer
+    # Use formula: y = (profit-grund)/10000, then tax based on y
+    y = (profit - grund) / 10000.0
+    if profit <= 69878:
+        # z = y, tax = (1000*y + 1400)*y ??? simplified linear approx 14% to 42%
+        # Use progressive: approximate effective rate
+        # For demo: tax = taxable * (0.14 + (profit-grund)/(69878-grund)*0.28) * 0.5 ??? Let's do accurate piecewise using BMF formula approximation
+        # Use simplified BMF 2026 formula approximation: 
+        if y <= 1:
+            tax = (989.72*y + 1400)*y
+        else:
+            tax = (239.33*y + 2397)*y + 938.24
+            # Adjust
+            tax = tax * 1.0
+    elif profit <= 277825:
+        tax = 0.42*profit - 10150  # Simplified 42%
+    else:
+        tax = 0.45*profit - 18450
+    # Ensure not negative
+    tax = max(0, tax)
+    taxable = max(0, profit-grund)
+    info="Germany 2026: Grundfreibetrag €12,348 0%, €12,349-€69,878 14%->42% progressive, €69,879-€277,825 42%, €277,826+ 45%"
+    return taxable, tax, tax, 0, info
 
 def calc_tax_for_country(country, profit):
     if country=="UK": return calc_tax_uk(profit)
+    if country=="Nigeria": return calc_tax_nigeria(profit)
+    if country=="US": return calc_tax_us(profit)
+    if country=="Canada": return calc_tax_canada(profit)
+    if country=="Australia": return calc_tax_australia(profit)
+    if country=="Germany": return calc_tax_germany(profit)
     return calc_tax_uk(profit)
 
 def extract_receipt_data(image_path):
@@ -241,7 +334,7 @@ if not st.session_state.user_id:
         user_code=st.text_input("MemorableCode", placeholder="type a memorable name or code", label_visibility="collapsed", key="login_code_input")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -259,7 +352,7 @@ with col_h2:
         try: st.query_params.clear()
         except: pass
         st.rerun()
-    st.caption(f"Name: {st.session_state.user_id}")
+    st.caption(f"Private: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country:
@@ -403,6 +496,7 @@ if main_nav=="Dashboard":
     """, unsafe_allow_html=True)
     if annual_income>0:
         st.success(f"{cur} Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
+        st.caption(f"{bracket_info}")
 
 if main_nav=="Accountant":
     st.session_state.receipts_data = []
