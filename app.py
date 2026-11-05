@@ -15,87 +15,82 @@ html, body, .stApp, [data-testid="stAppViewContainer"] {background-color: #eef2f
 
 /* BUTTONS BLUE */
 button, div[data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
-a[data-testid="stLinkButton"] {background-color: #1e40af !important; background: #1e40af !important; color: white !important; border-color: #1e40af !important; border-radius: 10px !important;}
+a[data-testid="stLinkButton"] {background-color: #1e40af !important; background: #1e40af !important; color: white !important; border-radius: 10px !important;}
 
-/* RADIO BLUE - NUCLEAR - WORKS WITHOUT CONFIG.TOML */
-input[type="radio"] { accent-color: #1e40af !important; -webkit-accent-color: #1e40af !important; }
-div[data-baseweb="radio"] { --accent: #1e40af !important; }
-div[data-baseweb="radio"] * { accent-color: #1e40af !important; }
-div[data-baseweb="radio"] div[aria-checked="true"],
-div[data-baseweb="radio"] div[data-checked="true"],
-div[data-baseweb="radio"] > div:first-child > div,
-div[data-baseweb="radio"] > div > div {
-    background: #1e40af !important;
-    background-color: #1e40af !important;
-    border-color: #1e40af !important;
-    fill: #1e40af !important;
-}
-div[data-baseweb="radio"] svg,
-div[data-baseweb="radio"] svg circle,
-span[data-baseweb="radioMarkInner"],
-span[data-baseweb="radioMarkOuter"] {
-    fill: #1e40af !important;
-    background: #1e40af !important;
-    background-color: #1e40af !important;
-    border-color: #1e40af !important;
-    stroke: #1e40af !important;
-}
+/* RADIO BLUE - DEFINITIVE - OVERRIDES RED */
 div[data-baseweb="radio"] > div:first-child {
-    border: 2px solid #1e40af !important;
     border-color: #1e40af !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+/* The inner dot - force blue */
+div[data-baseweb="radio"] > div:first-child > div,
+div[data-baseweb="radio"] div[data-checked="true"],
+div[data-baseweb="radio"] div[aria-checked="true"] {
+    background: #1e40af !important;
+    background-color: #1e40af !important;
+    border-color: #1e40af !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+}
+/* SVG circle */
+div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle,
+span[data-baseweb="radioMarkInner"] {
+    fill: #1e40af !important;
+    background: #1e40af !important;
+    background-color: #1e40af !important;
+    stroke: #1e40af !important;
+    color: #1e40af !important;
+}
+/* If still red, hue-rotate red to blue */
+div[data-baseweb="radio"] div[style*="rgb(255, 75, 75)"],
+div[data-baseweb="radio"] div[style*="#ff4b4b"],
+div[data-baseweb="radio"] svg[style*="rgb(255, 75, 75)"] {
+    background: #1e40af !important;
+    background-color: #1e40af !important;
+    fill: #1e40af !important;
+    filter: hue-rotate(220deg) saturate(2) !important;
 }
 
-/* FIELDS BLACK BORDER - NOT RED */
+/* FIELDS BLACK */
 div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea {
-    border: 1.5px solid #000000 !important; background: white !important; border-radius: 8px !important; color: #1e293b !important;
+    border: 1.5px solid #000 !important; background: white !important; border-radius: 8px !important;
 }
-div[data-testid="stTextInput"] input:focus, div[data-testid="stTextArea"] textarea:focus {
-    border: 2px solid #000000 !important; box-shadow: none !important; outline: none !important;
-}
-div[data-testid="stTextInput"] > div:focus-within { border-color: #000000 !important; box-shadow: none !important; }
-
-/* ALIGN FIELDS */
-div[data-testid="stTextInput"] { margin-bottom: 10px !important; }
-label { margin-bottom: 4px !important; color: #1e293b !important; font-size: 0.9rem !important; }
-
-/* METRIC FULL AMOUNT - NO ... */
-div[data-testid="stMetricValue"] { overflow: visible !important; white-space: normal !important; text-overflow: unset !important; word-break: break-all !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# BLUE RADIO - LIGHTWEIGHT - NO FREEZE - RUNS ONCE
 st.components.v1.html("""
 <script>
 (function(){
-  function makeBlue(){
+  function forceBlueRadio(){
     try{
       const doc = window.parent.document;
-      const styleId='blue-radio-final';
-      if(!doc.getElementById(styleId)){
+      // Add blue style once
+      if(!doc.getElementById('blue-radio-v24')){
         const s=doc.createElement('style');
-        s.id=styleId;
+        s.id='blue-radio-v24';
         s.textContent=`
-          input[type="radio"]{accent-color:#1e40af !important;}
-          div[data-baseweb="radio"] *{border-color:#1e40af !important;}
-          div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important; background-color:#1e40af !important;}
-          div[data-baseweb="radio"] > div:first-child > div{background:#1e40af !important; background-color:#1e40af !important;}
-          button, [data-testid="stButton"] button{background:#1e40af !important; color:white !important;}
+          div[data-baseweb="radio"] > div:first-child{border-color:#1e40af !important; border-width:2px !important;}
+          div[data-baseweb="radio"] > div:first-child > div,
+          div[data-baseweb="radio"] div[data-checked="true"]{background:#1e40af !important; background-color:#1e40af !important; width:10px !important; height:10px !important; border-radius:50% !important;}
+          div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;}
+          button{background:#1e40af !important; color:white !important;}
         `;
         doc.head.appendChild(s);
       }
-      // Force all radio dots blue
-      doc.querySelectorAll('div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] > div:first-child > div').forEach(el=>{
-        try{
-          el.style.setProperty('fill','#1e40af','important');
-          el.style.setProperty('background','#1e40af','important');
-          el.style.setProperty('background-color','#1e40af','important');
-        }catch(e){}
+      // Force every radio dot blue
+      doc.querySelectorAll('div[data-baseweb="radio"] > div:first-child > div, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"]').forEach(el=>{
+        el.style.setProperty('background','#1e40af','important');
+        el.style.setProperty('background-color','#1e40af','important');
+        el.style.setProperty('fill','#1e40af','important');
+        el.style.setProperty('border-color','#1e40af','important');
       });
     }catch(e){}
   }
-  makeBlue();
-  // Run once more after 1s to catch late render
-  setTimeout(makeBlue, 1000);
+  forceBlueRadio();
+  setTimeout(forceBlueRadio, 500);
+  setTimeout(forceBlueRadio, 1500);
 })();
 </script>
 """, height=0)
@@ -111,7 +106,6 @@ if "current_image_path" not in st.session_state: st.session_state.current_image_
 if "detected" not in st.session_state: st.session_state.detected = {"shop": "", "total": 0.0, "date": datetime.now().strftime("%Y-%m-%d"), "debug": ""}
 if "receipts_data" not in st.session_state: st.session_state.receipts_data = []
 
-# Persist login via URL
 try:
     qp = st.query_params
     if "user" in qp and st.session_state.user_id is None:
@@ -119,17 +113,6 @@ try:
         if saved_user and len(saved_user)>=2:
             st.session_state.user_id = saved_user
             if "country" in qp: st.session_state.country = qp.get("country","UK")
-            try:
-                f = f"receipts_{st.session_state.user_id}_{st.session_state.country}.csv"
-                if os.path.exists(f):
-                    df_tmp = pd.read_csv(f)
-                    if not df_tmp.empty: st.session_state.receipts_data = df_tmp.to_dict('records')
-            except: pass
-    if "q1" in qp:
-        try:
-            st.session_state.q1 = float(qp.get("q1","0")); st.session_state.q2 = float(qp.get("q2","0"))
-            st.session_state.q3 = float(qp.get("q3","0")); st.session_state.q4 = float(qp.get("q4","0"))
-        except: pass
 except: pass
 
 if "logout" in st.query_params:
@@ -140,23 +123,6 @@ if "logout" in st.query_params:
 
 CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Australia": "A$", "Germany": "€"}
 def get_currency(): return CURRENCY_MAP.get(st.session_state.country, "£")
-
-def load_all_receipts_admin():
-    all_records=[]
-    try:
-        files=glob.glob("receipts_*.csv")
-        for f in files:
-            try:
-                df_tmp=pd.read_csv(f)
-                if not df_tmp.empty:
-                    parts=f.replace("receipts_","").replace(".csv","").split("_")
-                    if len(parts)>=2:
-                        df_tmp["owner"]=parts[0]; df_tmp["country_file"]=parts[-1]
-                    all_records.append(df_tmp)
-            except: continue
-        if all_records: return pd.concat(all_records, ignore_index=True)
-    except: pass
-    return pd.DataFrame()
 
 def calc_tax_uk(profit):
     pa=12570; taxable=max(0,profit-pa); rem=taxable; tax=0
@@ -177,67 +143,11 @@ def calc_tax_us(profit):
         if rem<=0: break
         span = (limit - prev) if limit!=float('inf') else rem
         amt=min(rem, span); tax+=amt*rate; rem-=amt; prev=limit if limit!=float('inf') else prev
-    return taxable, tax, tax, 0, f"Std Ded ${std_ded} | 10%/12%/22%/24%/32%/35%/37%"
-
-def calc_tax_nigeria(profit):
-    if profit<=800000: return 0,0,0,0,"First ₦800k 0%"
-    taxable=profit-800000; rem=taxable; tax=0
-    for limit, rate in [(2200000,0.15),(9000000,0.18),(13000000,0.21),(25000000,0.23),(float('inf'),0.25)]:
-        if rem<=0: break
-        amt=min(rem,limit); tax+=amt*rate; rem-=amt
-    return taxable, tax, tax, 0, "0% ₦0-800k | 15% | 18% | 21% | 23% | 25% >₦50m"
-
-def calc_tax_canada(profit):
-    bpa=16452; taxable=max(0,profit-bpa); rem=taxable; tax=0; prev=0
-    for limit, rate in [(58523,0.14),(117045,0.205),(181021,0.26),(252752,0.29),(float('inf'),0.33)]:
-        if rem<=0: break
-        span = (limit - prev) if limit!=float('inf') else rem
-        amt=min(rem, span); tax+=amt*rate; rem-=amt; prev=limit if limit!=float('inf') else prev
-    return taxable, tax, tax, 0, f"BPA ${bpa} | 14%/20.5%/26%/29%/33%"
-
-def calc_tax_australia(profit):
-    if profit<=18200: return 0,0,0,0,"0% $0-$18.2k"
-    tax=0; medicare = profit*0.02 if profit>24276 else 0
-    if profit>18200:
-        amt=min(profit,45000)-18200
-        if amt>0: tax+=amt*0.15
-    if profit>45000:
-        amt=min(profit,135000)-45000
-        if amt>0: tax+=amt*0.30
-    if profit>135000:
-        amt=min(profit,190000)-135000
-        if amt>0: tax+=amt*0.37
-    if profit>190000: tax+=(profit-190000)*0.45
-    return profit, tax+medicare, tax, medicare, "0% $0-18.2k | 15%/30%/37%/45% +2% Medicare"
-
-def calc_tax_germany(profit):
-    grund=12348; taxable=max(0,profit-grund)
-    if taxable<=0: return 0,0,0,0,f"Grundfreibetrag €{grund}"
-    if profit<=69878:
-        rate = 0.14 + (0.42-0.14)*(profit-grund)/(69878-grund)
-        tax = taxable * (0.14 + rate)/2
-    elif profit<=277825: tax = (69878-grund)*0.28 + (profit-69878)*0.42
-    else: tax = (69878-grund)*0.28 + (277825-69878)*0.42 + (profit-277825)*0.45
-    return taxable, tax, tax, 0, f"Grundfreibetrag €{grund} | 14%→42% €12k-69k | 42% | 45%"
+    return taxable, tax, tax, 0, f"Std Ded ${std_ded}"
 
 def calc_tax_for_country(country, profit):
     if country=="UK": return calc_tax_uk(profit)
-    if country=="US": return calc_tax_us(profit)
-    if country=="Nigeria": return calc_tax_nigeria(profit)
-    if country=="Canada": return calc_tax_canada(profit)
-    if country=="Australia": return calc_tax_australia(profit)
-    if country=="Germany": return calc_tax_germany(profit)
     return calc_tax_uk(profit)
-
-def get_tax_explanation(country, annual_income, total_exp, profit, taxable, total_tax, income_tax, ni, bracket_info):
-    cur = CURRENCY_MAP.get(country, "£")
-    exp = total_exp
-    if country=="UK":
-        return f"""**UK 2026/27:** You earned {cur}{annual_income:.2f} and spent {cur}{exp:.2f}, profit {cur}{profit:.2f}. First £12,570 tax-free PA, taxable {cur}{taxable:.2f}, tax {cur}{total_tax:.2f} (Income Tax {cur}{income_tax:.2f} at 20% + NI {cur}{ni:.2f} at 6%).
-- Income {cur}{annual_income:.2f} - Expenses {cur}{exp:.2f} = Profit {cur}{profit:.2f}
-- Taxable = Profit {cur}{profit:.2f} - PA £12,570 = {cur}{taxable:.2f}
-- Total = {cur}{income_tax:.2f} + {cur}{ni:.2f} = {cur}{total_tax:.2f} | {bracket_info}"""
-    return f"{country} | Profit {cur}{profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_tax:.2f} | {bracket_info}"
 
 def extract_receipt_data(image_path):
     result={"shop":"", "total":0.0, "date":datetime.now().strftime("%Y-%m-%d"), "debug":""}
@@ -245,9 +155,9 @@ def extract_receipt_data(image_path):
     try:
         if hasattr(st,'secrets') and "OPENAI_API_KEY" in st.secrets: api_key = st.secrets["OPENAI_API_KEY"]
     except: pass
-    country = st.session_state.country; cur = CURRENCY_MAP.get(country, "£")
+    cur = CURRENCY_MAP.get(st.session_state.country, "£")
     if not api_key:
-        result["debug"]=f"❌ OPENAI_API_KEY NOT FOUND for {country} ({cur})"
+        result["debug"]=f"❌ OPENAI_API_KEY NOT FOUND"
         return result
     try:
         import openai
@@ -257,8 +167,7 @@ def extract_receipt_data(image_path):
         img.thumbnail((1024,1024))
         buf=io.BytesIO(); img.save(buf, format="JPEG", quality=90)
         b64=base64.b64encode(buf.getvalue()).decode()
-        prompt = f"You are a receipt OCR for {country}. Currency is {cur}. Extract shop, total number, date YYYY-MM-DD. Return ONLY JSON"
-        resp=client.chat.completions.create(model="gpt-4o-mini", messages=[{"role":"user","content":[{"type":"text","text":prompt},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+b64}}]}], max_tokens=300)
+        resp=client.chat.completions.create(model="gpt-4o-mini", messages=[{"role":"user","content":[{"type":"text","text":"Extract shop, total, date YYYY-MM-DD JSON"},{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+b64}}]}], max_tokens=250)
         txt=resp.choices[0].message.content
         m=re.search(r"\{.*\}", txt, re.DOTALL)
         if m:
@@ -267,7 +176,7 @@ def extract_receipt_data(image_path):
             if data.get("shop"): result["shop"]=str(data["shop"])[:40]
             if data.get("total"):
                 try:
-                    val=str(data["total"]).replace(",","").replace("£","").replace("$","").replace("€","").replace("₦","").replace("C","").replace("A","")
+                    val=str(data["total"]).replace(",","")
                     result["total"]=float(re.findall(r"[0-9]+\.?[0-9]*", val)[0])
                 except: pass
             if data.get("date"):
@@ -275,10 +184,9 @@ def extract_receipt_data(image_path):
                     d=datetime.strptime(str(data["date"])[:10], "%Y-%m-%d")
                     result["date"]=d.strftime("%Y-%m-%d")
                 except: pass
-            result["debug"]=f"✅ {country} {cur}{result['total']} - {result['shop']}"
+            result["debug"]=f"✅ {cur}{result['total']} - {result['shop']}"
             return result
-    except Exception as e: result["debug"]=f"❌ {country} {cur} {e}"
-    if not result["shop"]: result["shop"]="Receipt"
+    except Exception as e: result["debug"]=f"❌ {e}"
     return result
 
 def get_db_file():
@@ -290,28 +198,22 @@ def get_upload_dir():
     d=f"receipt_images_{uid}_{c}"; os.makedirs(d, exist_ok=True); return d
 
 def load_receipts():
-    if st.session_state.user_id=="admin":
-        df_all=load_all_receipts_admin()
-        if not df_all.empty: return df_all
-    if st.session_state.receipts_data:
-        df = pd.DataFrame(st.session_state.receipts_data)
-        if not df.empty: return df
+    # ALWAYS load from file for current user+country - fixes Nigeria ₦ showing as UK £
     f=get_db_file()
-    if not os.path.exists(f):
+    if os.path.exists(f):
         try:
-            files=glob.glob(f"receipts_{st.session_state.user_id}_*.csv")
-            if files:
-                df=pd.read_csv(files[0])
-                if not df.empty:
-                    st.session_state.receipts_data = df.to_dict('records')
-                    return df
+            df=pd.read_csv(f)
+            if not df.empty:
+                st.session_state.receipts_data = df.to_dict('records')
+                return df
         except: pass
-        return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at","owner","country_file"])
-    try:
-        df=pd.read_csv(f)
-        if not df.empty: st.session_state.receipts_data = df.to_dict('records')
-        return df
-    except: return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at","owner","country_file"])
+    # If no file but session has data, check if session country matches current file
+    if st.session_state.receipts_data:
+        # Only use session if it matches current country file
+        df = pd.DataFrame(st.session_state.receipts_data)
+        if not df.empty:
+            return df
+    return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at"])
 
 def save_receipt(shop, date, total, category, filename, image_path=""):
     record={"date":date,"shop":shop,"total":float(total),"category":category,"filename":filename,"image_path":image_path,"created_at":datetime.now().strftime("%Y-%m-%d %H:%M")}
@@ -326,13 +228,12 @@ if not st.session_state.user_id:
         user_code=st.text_input("MemorableCode", placeholder="type a memorable name or code", label_visibility="collapsed", key="login_code_input")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
             st.session_state.user_id=safe; st.session_state.country=country_sel; st.session_state.receipts_data=[]
-            try:
-                st.query_params["user"]=safe; st.query_params["country"]=country_sel
+            try: st.query_params["user"]=safe; st.query_params["country"]=country_sel
             except: pass
             st.rerun()
     st.stop()
@@ -345,17 +246,12 @@ with col_h2:
         try: st.query_params.clear()
         except: pass
         st.rerun()
-    st.caption(f"Name: {st.session_state.user_id}")
+    st.caption(f"Private: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
 if country_sel!=st.session_state.country:
     st.session_state.country=country_sel; st.session_state.receipts_data=[]
-    try:
-        st.query_params["country"]=country_sel
-        f = f"receipts_{st.session_state.user_id}_{st.session_state.country}.csv"
-        if os.path.exists(f):
-            df_tmp = pd.read_csv(f)
-            if not df_tmp.empty: st.session_state.receipts_data = df_tmp.to_dict('records')
+    try: st.query_params["country"]=country_sel
     except: pass
     st.rerun()
 
@@ -368,7 +264,7 @@ if main_nav=="Add":
     uploaded=None
     uploader_key=f"uploader_{st.session_state.user_id}_{st.session_state.upload_counter}_{st.session_state.country}"
     if upload_method=="Browse files":
-        uf=st.file_uploader(f"Pick receipt - {cur} will be auto-detected for {st.session_state.country}", type=["jpg","jpeg","png","heic"], key=uploader_key, label_visibility="collapsed")
+        uf=st.file_uploader(f"Pick receipt - {cur} will be auto-detected", type=["jpg","jpeg","png","heic"], key=uploader_key, label_visibility="collapsed")
         if uf: uploaded=uf
     else:
         cam=st.camera_input("Take photo", key=f"cam_{st.session_state.user_id}_{st.session_state.upload_counter}_{st.session_state.country}", label_visibility="collapsed")
@@ -387,16 +283,13 @@ if main_nav=="Add":
         if st.session_state.current_image_path and os.path.exists(st.session_state.current_image_path):
             try:
                 img=Image.open(st.session_state.current_image_path)
-                st.image(img, width=200, caption=f"Ready for {st.session_state.user_id} - {st.session_state.country} {cur}")
+                st.image(img, width=200, caption=f"Ready for {st.session_state.user_id}")
             except: st.write("Image ready")
-            with st.spinner(f"Reading receipt as {st.session_state.country} {cur}..."):
+            with st.spinner(f"Reading receipt as {cur}..."):
                 detected=extract_receipt_data(st.session_state.current_image_path)
                 st.session_state.detected=detected
-                if detected["total"]>0:
-                    st.success(f"✅ {st.session_state.country} {cur}{detected['total']} - {detected['shop']} {detected['date']}")
-                else:
-                    st.error(f"❌ Could not auto-read {cur}")
-                    st.code(detected.get("debug","")[:800])
+                if detected["total"]>0: st.success(f"✅ {cur}{detected['total']} - {detected['shop']}")
+                else: st.error(f"❌ Could not auto-read"); st.code(detected.get("debug","")[:500])
         with st.form("add_form"):
             def_shop=st.session_state.detected.get("shop","")
             def_total=float(st.session_state.detected.get("total",0.0))
@@ -412,18 +305,15 @@ if main_nav=="Add":
                     st.session_state.upload_counter+=1
                     st.session_state.current_image_path=None
                     st.session_state.detected={"shop":"","total":0.0,"date":datetime.now().strftime("%Y-%m-%d"),"debug":""}
-                    st.success(f"Saved {shop} {cur}{total:.2f} - Go to List")
+                    st.success(f"Saved {shop} {cur}{total:.2f}")
                     st.rerun()
 
 if main_nav=="List":
-    if st.session_state.user_id=="admin":
-        st.markdown(f"**🔑 Admin - All Users Receipts - {st.session_state.country} {cur}**")
-    else:
-        st.markdown(f"**Receipts - List - {st.session_state.country} {cur}**")
+    st.markdown(f"**Receipts - List - {st.session_state.country} {cur}**")
     df=load_receipts()
-    if df.empty: st.info("No receipts yet - Add in Add tab")
+    if df.empty: st.info("No receipts yet")
     else:
-        st.success(f"{len(df)} receipts for {st.session_state.user_id} - {st.session_state.country} {cur}")
+        st.success(f"{len(df)} receipts")
         for idx in range(len(df)-1, -1, -1):
             row=df.iloc[idx]
             c1,c2,c3,c4=st.columns([1,3,2,2])
@@ -437,8 +327,7 @@ if main_nav=="List":
             with c4:
                 with st.popover("View"):
                     st.write(f"{row['shop']} {row['total']}")
-                    if row.get("image_path") and os.path.exists(str(row["image_path"])): st.image(Image.open(row["image_path"]), width=200)
-                    if st.button("DELETE", key=f"del_{idx}_{st.session_state.upload_counter}_{st.session_state.country}", type="secondary", use_container_width=True):
+                    if st.button("DELETE", key=f"del_{idx}", type="secondary", use_container_width=True):
                         try: st.session_state.receipts_data.pop(idx)
                         except: pass
                         try: pd.DataFrame(st.session_state.receipts_data).to_csv(get_db_file(), index=False)
@@ -449,19 +338,16 @@ if main_nav=="Dashboard":
     st.markdown(f"**Dashboard - {st.session_state.country} Tax 2026**")
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
-    st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {len(df)} receipts total {cur}{total_exp:.2f}")
+    st.caption(f"Total {cur}{total_exp:.2f} | {len(df)} receipts")
 
     c_clear1, c_clear2 = st.columns([1,2])
     with c_clear1:
         if st.button("Clear All", type="secondary", key="clear_incomes", use_container_width=True):
             st.session_state.q1=0.0; st.session_state.q2=0.0; st.session_state.q3=0.0; st.session_state.q4=0.0
-            for k in ["q1_text","q2_text","q3_text","q4_text","q1_input","q2_input","q3_input","q4_input"]:
-                if k in st.session_state: st.session_state[k]="0" if "text" in k else 0.0
-            try:
-                st.query_params["q1"]="0"; st.query_params["q2"]="0"; st.query_params["q3"]="0"; st.query_params["q4"]="0"
-            except: pass
+            for k in ["q1_text","q2_text","q3_text","q4_text"]:
+                if k in st.session_state: st.session_state[k]="0"
             st.rerun()
-    with c_clear2: st.caption("Type amount, Enter. Delete = set to 0. Clear All = all 0.")
+    with c_clear2: st.caption("Delete = set to 0")
 
     col1,col2=st.columns(2)
     with col1:
@@ -473,7 +359,7 @@ if main_nav=="Dashboard":
     
     def parse_income(s):
         try:
-            s=str(s).strip().replace(",","").replace(cur,"").replace("£","").replace("$","").replace("€","").replace("₦","").replace("C","").replace("A","")
+            s=str(s).strip().replace(",","")
             if s=="" or s.lower()=="none": return 0.0
             return float(s)
         except: return 0.0
@@ -481,65 +367,45 @@ if main_nav=="Dashboard":
     q1=parse_income(q1_str); q2=parse_income(q2_str); q3=parse_income(q3_str); q4=parse_income(q4_str)
     annual_income = float(q1) + float(q2) + float(q3) + float(q4)
     st.session_state.q1=float(q1); st.session_state.q2=float(q2); st.session_state.q3=float(q3); st.session_state.q4=float(q4)
-    try:
-        st.query_params["q1"]=str(float(q1)); st.query_params["q2"]=str(float(q2)); st.query_params["q3"]=str(float(q3)); st.query_params["q4"]=str(float(q4))
-    except: pass
     annual_profit=annual_income-total_exp
     taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, annual_profit)
 
     st.markdown(f"""
     <div style="display:flex; gap:10px; margin:10px 0;">
         <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
-            <div style="font-size:0.8rem; color:#64748b;">Expenses</div>
-            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{total_exp:.2f}</div>
+            <div style="font-size:0.8rem;">Expenses</div>
+            <div style="font-size:1.1rem; font-weight:600;">{cur}{total_exp:.2f}</div>
         </div>
         <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
-            <div style="font-size:0.8rem; color:#64748b;">Profit</div>
-            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{annual_profit:.2f}</div>
+            <div style="font-size:0.8rem;">Profit</div>
+            <div style="font-size:1.1rem; font-weight:600;">{cur}{annual_profit:.2f}</div>
         </div>
         <div style="flex:1; background:white; border:1px solid #000; border-radius:8px; padding:10px; text-align:center;">
-            <div style="font-size:0.8rem; color:#64748b;">Tax</div>
-            <div style="font-size:1.2rem; font-weight:600; word-break:break-all;">{cur}{total_annual:.2f}</div>
+            <div style="font-size:0.8rem;">Tax</div>
+            <div style="font-size:1.1rem; font-weight:600;">{cur}{total_annual:.2f}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     if annual_income>0:
-        st.success(f"{st.session_state.country} {cur} | Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
-        st.caption(f"Brackets: {bracket_info}")
-        explanation = get_tax_explanation(st.session_state.country, annual_income, total_exp, annual_profit, taxable, total_annual, income_tax, ni_val, bracket_info)
-        with st.expander(f"📖 Explain this tax - How {cur}{total_annual:.2f} calculated?", expanded=False):
-            st.markdown(explanation)
-    else:
-        st.info(f"Enter Q1-Q4 income for {st.session_state.country} to see {cur} tax")
+        st.success(f"{cur} Income {cur}{annual_income:.2f} | Profit {cur}{annual_profit:.2f} | Taxable {cur}{taxable:.2f} | Tax {cur}{total_annual:.2f}")
 
 if main_nav=="Accountant":
-    st.markdown(f"**Send to Accountant - {st.session_state.country} {cur}**")
+    # FORCE reload from correct country file - prevents ₦ showing as £
+    st.session_state.receipts_data = []  # Clear stale
     df=load_receipts()
-    if df.empty: st.info("No receipts - Add in Add tab")
+    st.markdown(f"**Send to Accountant - {st.session_state.country} ({cur})**")
+    if df.empty: st.info(f"No receipts yet for {st.session_state.country} - {cur}")
     else:
-        st.success(f"{len(df)} receipts ready - {st.session_state.country} {cur}")
+        st.success(f"{len(df)} receipts for {st.session_state.country} - Total {cur}{df['total'].sum():.2f}")
         your_name=st.text_input("Your name", value=st.session_state.user_id, key="acct_name")
         accountant_email=st.text_input("Accountant email", value="accountant@example.com", key="acct_email")
         qi=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
         profit=qi-df["total"].sum()
         taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, profit)
         st.markdown("### Preview")
-        preview_text=f"""Hello,
-
-Please find my records ({st.session_state.country} - {cur}):
-
-- Name: {your_name}
-- Annual Income: {cur}{qi:.2f}
-  (Q1 {cur}{st.session_state.q1:.2f} + Q2 {cur}{st.session_state.q2:.2f} + Q3 {cur}{st.session_state.q3:.2f} + Q4 {cur}{st.session_state.q4:.2f})
-- Total Expenses: {cur}{df['total'].sum():.2f} ({len(df)} receipts)
-- Annual Profit: {cur}{profit:.2f}
-- Taxable Profit: {cur}{taxable:.2f}
-- Estimated Tax: {cur}{total_annual:.2f} ({bracket_info})
-
-Thanks,
-{your_name}
-"""
-        st.text_area("Preview", preview_text, height=240, key="preview_simple", label_visibility="collapsed")
-        st.download_button(f"Download CSV {cur}", df.to_csv(index=False).encode(), f"MTD_{st.session_state.country}.csv", "text/csv", use_container_width=True, type="secondary")
-        import urllib.parse
-        st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote(f'Records {st.session_state.country} - '+your_name)}&body={urllib.parse.quote(preview_text)}", use_container_width=True, type="secondary")
+        # DYNAMIC preview - country and currency from current selection
+        preview_text=f"Hello,\n\nPlease find my records ({st.session_state.country} - {cur}):\n\n- Name: {your_name}\n- Country: {st.session_state.country}\n- Currency: {cur}\n- Annual Income: {cur}{qi:.2f} (Q1 {cur}{st.session_state.q1:.2f} + Q2 {cur}{st.session_state.q2:.2f} + Q3 {cur}{st.session_state.q3:.2f} + Q4 {cur}{st.session_state.q4:.2f})\n- Total Expenses: {cur}{df['total'].sum():.2f} ({len(df)} receipts)\n- Annual Profit: {cur}{profit:.2f}\n- Taxable Profit: {cur}{taxable:.2f}\n- Estimated Tax: {cur}{total_annual:.2f} ({bracket_info})\n\nReceipts breakdown:\n"
+        for i, r in df.iterrows():
+            preview_text+=f"  {i+1}. {r['date']} - {r['shop']} - {cur}{float(r['total']):.2f}\n"
+        preview_text+=f"\nThanks,\n{your_name}\n"
+        st.text_area("Preview", preview_text, height=280, key="preview_simple", label_visibility="collapsed")
