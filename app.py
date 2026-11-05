@@ -12,143 +12,37 @@ st.markdown("""
 html, body, .stApp, [data-testid="stAppViewContainer"] {background-color: #eef2f7 !important;}
 .block-container {background-color: #eef2f7 !important; max-width: 430px !important;}
 #MainMenu, header, footer, [data-testid="stToolbar"] {display: none !important;}
-
-/* BUTTONS BLUE */
 button, div[data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
-a[data-testid="stLinkButton"] {
-    background-color: #1e40af !important; background: #1e40af !important;
-    color: white !important; border-color: #1e40af !important; border-radius: 10px !important;
-}
-
-/* === RADIO BLUE - NUCLEAR FIX === */
+a[data-testid="stLinkButton"] {background-color: #1e40af !important; background: #1e40af !important; color: white !important; border-color: #1e40af !important; border-radius: 10px !important;}
 * { --primary: #1e40af !important; }
 input[type="radio"] { accent-color: #1e40af !important; }
-
-div[data-baseweb="radio"] * {
-    border-color: #1e40af !important;
-}
-div[data-baseweb="radio"] div[data-checked="true"] {
-    background-color: #1e40af !important;
-    border-color: #1e40af !important;
-}
-div[data-baseweb="radio"] svg {
-    fill: #1e40af !important;
-    color: #1e40af !important;
-}
-div[data-baseweb="radio"] svg circle {
-    fill: #1e40af !important;
-    stroke: #1e40af !important;
-    r: 5 !important;
-}
-div[data-baseweb="radio"] span {
-    background-color: #1e40af !important;
-    border-color: #1e40af !important;
-}
-/* Force outer circle blue border */
-div[data-baseweb="radio"] > div:first-child {
-    border: 2px solid #1e40af !important;
-}
-/* Inner dot - the actual red dot */
-div[data-baseweb="radio"] > div:first-child > div {
-    background-color: #1e40af !important;
-    background: #1e40af !important;
-}
-
-/* FIX OVERLAPPING LABELS */
-label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label,
-div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label {
-    margin-bottom: 6px !important;
-    padding-bottom: 4px !important;
-    display: block !important;
-    position: relative !important;
-    z-index: 1 !important;
-    color: #1e293b !important;
-    font-size: 0.9rem !important;
-}
-div[data-testid="stTextInput"] input,
-div[data-testid="stNumberInput"] input {
-    border: 1.5px solid #94a3b8 !important;
-    background-color: white !important;
-    border-radius: 8px !important;
-    margin-top: 2px !important;
-}
-div[data-testid="stTextArea"] textarea {
-    border: 1.5px solid #94a3b8 !important;
-    background: white !important;
-}
+div[data-baseweb="radio"] * { border-color: #1e40af !important; }
+div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"] { fill: #1e40af !important; background: #1e40af !important; border-color: #1e40af !important; }
+div[data-baseweb="radio"] > div:first-child { border: 2px solid #1e40af !important; }
+div[data-baseweb="radio"] > div:first-child > div { background: #1e40af !important; }
+label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label, div[data-testid="stSelectbox"] label, div[data-testid="stTextArea"] label { margin-bottom: 6px !important; padding-bottom: 4px !important; display: block !important; position: relative !important; color: #1e293b !important; font-size: 0.9rem !important; }
+div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input, div[data-testid="stTextArea"] textarea { border: 1.5px solid #94a3b8 !important; background: white !important; border-radius: 8px !important; margin-top: 2px !important; }
 </style>
 """, unsafe_allow_html=True)
 
 st.components.v1.html("""
 <script>
 (function(){
-  function forceBlueNuclear(){
+  function forceBlue(){
     try{
       const doc = window.parent.document;
-      // Inject style tag
-      if(!doc.getElementById('blue-v10-nuclear')){
+      if(!doc.getElementById('blue-v12')){
         const s=doc.createElement('style');
-        s.id='blue-v10-nuclear';
-        s.textContent=`
-          *{--primary:#1e40af !important;}
-          input[type="radio"]{accent-color:#1e40af !important;}
-          div[data-baseweb="radio"] *{border-color:#1e40af !important;}
-          div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important; stroke:#1e40af !important;}
-          div[data-baseweb="radio"] > div:first-child > div{background:#1e40af !important; background-color:#1e40af !important;}
-          button, [data-testid="stButton"] button{background:#1e40af !important; color:white !important;}
-        `;
+        s.id='blue-v12';
+        s.textContent=`*{--primary:#1e40af !important;} input[type="radio"]{accent-color:#1e40af !important;} div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;} button{background:#1e40af !important; color:white !important;}`;
         doc.head.appendChild(s);
       }
-      // Force all radio-related elements blue
-      doc.querySelectorAll('input[type="radio"]').forEach(r=>{
-        r.style.setProperty('accent-color','#1e40af','important');
-        r.style.setProperty('color','#1e40af','important');
-      });
-      // The actual dots
-      const selectors = [
-        'div[data-baseweb="radio"] svg',
-        'div[data-baseweb="radio"] svg circle',
-        'div[data-baseweb="radio"] div',
-        'span[data-baseweb="radioMarkInner"]',
-        'span[data-baseweb="radioMarkOuter"]',
-        'div[data-baseweb="radio"] > div:first-child > div',
-        'div[data-baseweb="radio"] [data-checked="true"]'
-      ];
-      selectors.forEach(sel=>{
-        doc.querySelectorAll(sel).forEach(el=>{
-          try{
-            if(el.getAttribute('fill') && el.getAttribute('fill').toLowerCase() !== 'none'){
-              el.setAttribute('fill','#1e40af');
-            }
-            el.style.setProperty('fill','#1e40af','important');
-            el.style.setProperty('background','#1e40af','important');
-            el.style.setProperty('background-color','#1e40af','important');
-            el.style.setProperty('border-color','#1e40af','important');
-            el.style.setProperty('stroke','#1e40af','important');
-            // Remove red inline styles
-            if(el.style.backgroundColor.includes('255, 75, 75') || el.style.backgroundColor.includes('ff4b4b') || el.style.fill.includes('ff4b4b')){
-              el.style.setProperty('background-color','#1e40af','important');
-              el.style.setProperty('fill','#1e40af','important');
-            }
-          }catch(e){}
-        });
-      });
-      // Also catch any element with red computed style
-      doc.querySelectorAll('*').forEach(el=>{
-        try{
-          const bg = window.getComputedStyle(el).backgroundColor;
-          const fill = el.style.fill || '';
-          if(bg === 'rgb(255, 75, 75)' || fill.toLowerCase() === '#ff4b4b' || fill.toLowerCase() === 'rgb(255, 75, 75)'){
-            el.style.setProperty('background-color','#1e40af','important');
-            el.style.setProperty('fill','#1e40af','important');
-          }
-        }catch(e){}
-      });
+      doc.querySelectorAll('input[type="radio"]').forEach(r=>{ r.style.setProperty('accent-color','#1e40af','important'); });
+      doc.querySelectorAll('div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] > div:first-child > div').forEach(el=>{ try{ el.style.setProperty('fill','#1e40af','important'); el.style.setProperty('background','#1e40af','important'); el.style.setProperty('background-color','#1e40af','important'); }catch(e){} });
     }catch(e){}
   }
-  forceBlueNuclear();
-  setInterval(forceBlueNuclear, 300);
-  try{ new MutationObserver(forceBlueNuclear).observe(window.parent.document.body,{childList:true,subtree:true,attributes:true}); }catch(e){}
+  forceBlue(); setInterval(forceBlue,400);
+  try{ new MutationObserver(forceBlue).observe(window.parent.document.body,{childList:true,subtree:true}); }catch(e){}
 })();
 </script>
 """, height=0)
@@ -161,10 +55,8 @@ if "q3" not in st.session_state: st.session_state.q3 = 0.0
 if "q4" not in st.session_state: st.session_state.q4 = 0.0
 if "upload_counter" not in st.session_state: st.session_state.upload_counter = 0
 if "current_image_path" not in st.session_state: st.session_state.current_image_path = None
-if "detected" not in st.session_state:
-    st.session_state.detected = {"shop": "", "total": 0.0, "date": datetime.now().strftime("%Y-%m-%d"), "debug": ""}
-if "receipts_data" not in st.session_state:
-    st.session_state.receipts_data = []
+if "detected" not in st.session_state: st.session_state.detected = {"shop": "", "total": 0.0, "date": datetime.now().strftime("%Y-%m-%d"), "debug": ""}
+if "receipts_data" not in st.session_state: st.session_state.receipts_data = []
 
 if "logout" in st.query_params:
     st.session_state.user_id = None
@@ -172,18 +64,122 @@ if "logout" in st.query_params:
     st.query_params.clear()
     st.rerun()
 
+# === CURRENCY + TAX BRACKETS 2026 ===
+CURRENCY_MAP = {"UK": "£", "US": "$", "Nigeria": "₦", "Canada": "C$", "Australia": "A$", "Germany": "€"}
+def get_currency():
+    return CURRENCY_MAP.get(st.session_state.country, "£")
+
 def calc_tax_uk(profit):
     pa=12570; taxable=max(0,profit-pa); rem=taxable; tax=0
-    amt=min(rem,37700); tax+=amt*0.20; rem-=amt
+    b1=min(rem,37700); tax+=b1*0.20; rem-=b1
     if rem>0:
         limit=125140-12570-37700
-        amt2=min(rem,limit); tax+=amt2*0.40; rem-=amt2
+        b2=min(rem,limit); tax+=b2*0.40; rem-=b2
         if rem>0: tax+=rem*0.45
     ni=0
     if profit>12570:
         ni+=(min(profit,50270)-12570)*0.06
         if profit>50270: ni+=(profit-50270)*0.02
-    return taxable, tax+ni, tax, ni
+    return taxable, tax+ni, tax, ni, f"PA £{pa} | 20%/40%/45% | NI 6%+2%"
+
+def calc_tax_us(profit):
+    # 2026 IRS Rev Proc 2025-32 self-employed single
+    std_ded=16100; taxable=max(0,profit-std_ded); rem=taxable; tax=0
+    brackets=[(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]
+    prev=0
+    for limit, rate in brackets:
+        if rem<=0: break
+        span=min(limit-prev, rem) if limit!=float('inf') else rem
+        # Actually brackets are cumulative, use correct logic
+        # Simplified: use IRS style
+        pass
+    # Correct progressive
+    rem=taxable; tax=0; prev=0
+    for limit, rate in [(12400,0.10),(50400,0.12),(105700,0.22),(208500,0.24),(353800,0.32),(579200,0.35),(float('inf'),0.37)]:
+        if rem<=0: break
+        taxable_in_bracket = min(rem, limit - prev) if limit!=float('inf') else rem
+        if taxable_in_bracket>0:
+            tax+=taxable_in_bracket*rate
+            rem-=taxable_in_bracket
+            prev=limit
+    # Self employment tax approx 15.3% on 92.35% profit, but keep pure income tax for simplicity as requested pure profit tax
+    # User asked pure profit tax only, so no SE addition
+    return taxable, tax, tax, 0, f"Std Ded ${std_ded} | 10%/12%/22%/24%/32%/35%/37%"
+
+def calc_tax_nigeria(profit):
+    # Nigeria Tax Act 2025 - 2026 effective, pure profit tax only
+    # First 800k 0%, Next 2.2m 15%, Next 9m 18%, Next 13m 21%, Next 25m 23%, Above 50m 25%
+    if profit<=800000:
+        return 0,0,0,0,"First ₦800k 0%"
+    taxable=profit-800000; rem=taxable; tax=0
+    brackets=[(2200000,0.15),(9000000,0.18),(13000000,0.21),(25000000,0.23),(float('inf'),0.25)]
+    for limit, rate in brackets:
+        if rem<=0: break
+        amt=min(rem,limit)
+        tax+=amt*rate
+        rem-=amt
+    return taxable, tax, tax, 0, "0% ₦0-800k | 15% | 18% | 21% | 23% | 25% >₦50m"
+
+def calc_tax_canada(profit):
+    bpa=16452; taxable=max(0,profit-bpa); rem=taxable; tax=0
+    brackets=[(58523,0.14),(117045,0.205),(181021,0.26),(252752,0.29),(float('inf'),0.33)]
+    prev=0
+    for limit, rate in brackets:
+        if rem<=0: break
+        span = (limit - prev) if limit!=float('inf') else rem
+        amt=min(rem, span)
+        tax+=amt*rate
+        rem-=amt
+        prev=limit if limit!=float('inf') else prev
+    return taxable, tax, tax, 0, f"BPA ${bpa} | 14%/20.5%/26%/29%/33%"
+
+def calc_tax_australia(profit):
+    # 2026-27: 0% 0-18200, 15% 18201-45000, 30% 45001-135000, 37% 135001-190000, 45% >190000 +2% Medicare
+    if profit<=18200:
+        return 0,0,0,0,"0% $0-$18.2k"
+    rem=profit; tax=0
+    # Medicare 2% on full profit if > 24276
+    medicare = profit*0.02 if profit>24276 else 0
+    if profit>18200:
+        amt=min(profit,45000)-18200
+        if amt>0: tax+=amt*0.15
+    if profit>45000:
+        amt=min(profit,135000)-45000
+        if amt>0: tax+=amt*0.30
+    if profit>135000:
+        amt=min(profit,190000)-135000
+        if amt>0: tax+=amt*0.37
+    if profit>190000:
+        tax+=(profit-190000)*0.45
+    total=tax+medicare
+    taxable=profit
+    return taxable, total, tax, medicare, "0% $0-18.2k | 15%/30%/37%/45% +2% Medicare"
+
+def calc_tax_germany(profit):
+    grund=12348; taxable=max(0,profit-grund)
+    if taxable<=0:
+        return 0,0,0,0,f"Grundfreibetrag €{grund}"
+    if profit<=69878:
+        # Progressive 14% to 42%
+        # Simplified linear: average ~ (14% + 42%*(profit-grund)/(69878-grund))/2 - use formula approx
+        # German formula: use 14% start rising to 42%
+        # For app, approximate: 14% on first part rising
+        rate = 0.14 + (0.42-0.14)*(profit-grund)/(69878-grund)
+        tax = taxable * (0.14 + rate)/2  # average
+    elif profit<=277825:
+        tax = (69878-grund)*0.28 + (profit-69878)*0.42  # approx avg 28% for first band
+    else:
+        tax = (69878-grund)*0.28 + (277825-69878)*0.42 + (profit-277825)*0.45
+    return taxable, tax, tax, 0, f"Grundfreibetrag €{grund} | 14%→42% €12k-69k | 42% | 45%"
+
+def calc_tax_for_country(country, profit):
+    if country=="UK": return calc_tax_uk(profit)
+    if country=="US": return calc_tax_us(profit)
+    if country=="Nigeria": return calc_tax_nigeria(profit)
+    if country=="Canada": return calc_tax_canada(profit)
+    if country=="Australia": return calc_tax_australia(profit)
+    if country=="Germany": return calc_tax_germany(profit)
+    return calc_tax_uk(profit)
 
 def extract_receipt_data(image_path):
     result={"shop":"", "total":0.0, "date":datetime.now().strftime("%Y-%m-%d"), "debug":""}
@@ -192,8 +188,10 @@ def extract_receipt_data(image_path):
         if hasattr(st,'secrets') and "OPENAI_API_KEY" in st.secrets:
             api_key = st.secrets["OPENAI_API_KEY"]
     except: pass
+    country = st.session_state.country
+    cur = CURRENCY_MAP.get(country, "£")
     if not api_key:
-        result["debug"]="❌ OPENAI_API_KEY NOT FOUND"
+        result["debug"]=f"❌ OPENAI_API_KEY NOT FOUND for {country} ({cur})"
         return result
     try:
         import openai
@@ -204,13 +202,20 @@ def extract_receipt_data(image_path):
         buf=io.BytesIO()
         img.save(buf, format="JPEG", quality=90)
         b64=base64.b64encode(buf.getvalue()).decode()
+        # Country-aware prompt
+        prompt = f"""You are a receipt OCR for {country}. Currency is {cur}.
+Extract shop name, total amount (number only, no symbol), date YYYY-MM-DD.
+This receipt uses {cur} currency. Return ONLY JSON like {{"shop":"Monsoon Foods","total":49.84,"date":"2026-11-05"}}
+If receipt shows £ or $ or € or ₦ or C$ or A$, ignore symbol and return number.
+For {country}, examples: UK shop Monsoon Foods £49.84, US Walmart $49.84, Nigeria Shoprite ₦49.84, Canada Loblaws C$49.84, Australia Woolworths A$49.84, Germany Edeka €49.84
+"""
         resp=client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role":"user","content":[
-                {"type":"text","text":"Extract receipt: shop name, total amount, date YYYY-MM-DD. Return ONLY JSON {\"shop\":\"Monsoon Foods\",\"total\":49.84,\"date\":\"2026-11-05\"}"},
+                {"type":"text","text":prompt},
                 {"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+b64}}
             ]}],
-            max_tokens=250
+            max_tokens=300
         )
         txt=resp.choices[0].message.content
         m=re.search(r"\{.*\}", txt, re.DOTALL)
@@ -219,17 +224,19 @@ def extract_receipt_data(image_path):
             data=json.loads(m.group(0))
             if data.get("shop"): result["shop"]=str(data["shop"])[:40]
             if data.get("total"):
-                try: result["total"]=float(str(data["total"]).replace(",","").replace("£",""))
+                try:
+                    val=str(data["total"]).replace(",","").replace("£","").replace("$","").replace("€","").replace("₦","").replace("C","").replace("A","")
+                    result["total"]=float(re.findall(r"[0-9]+\.?[0-9]*", val)[0])
                 except: pass
             if data.get("date"):
                 try:
                     d=datetime.strptime(str(data["date"])[:10], "%Y-%m-%d")
                     result["date"]=d.strftime("%Y-%m-%d")
                 except: pass
-            result["debug"]=f"✅ {result['shop']} £{result['total']}"
+            result["debug"]=f"✅ {country} {cur}{result['total']} - {result['shop']}"
             return result
     except Exception as e:
-        result["debug"]=f"❌ {e}"
+        result["debug"]=f"❌ {country} {cur} {e}"
     if not result["shop"]: result["shop"]="Receipt"
     return result
 
@@ -272,7 +279,7 @@ if not st.session_state.user_id:
         user_code=st.text_input("code", placeholder="type a memorable name or code", label_visibility="collapsed")
         st.caption("You should remember your memorable code")
         country_sel=st.selectbox("Select Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=0)
-        submitted=st.form_submit_button("🔒 Login / Create Private Space", type="secondary", use_container_width=True)
+        submitted=st.form_submit_button("🔒 Login ", type="secondary", use_container_width=True)
         if submitted and user_code.strip() and len(user_code.strip())>=2:
             safe="".join(c for c in user_code if c.isalnum() or c in ("-","_")).strip()[:30]
             if not safe: safe=user_code.strip().replace(" ","_")[:30]
@@ -287,23 +294,24 @@ with col_h2:
         st.session_state.receipts_data=[]
         st.query_params.clear()
         st.rerun()
-    st.caption(f"Private: {st.session_state.user_id}")
+    st.caption(f"Name: {st.session_state.user_id}")
 st.markdown("---")
 country_sel=st.selectbox("Country / Tax Region", ["UK","US","Nigeria","Canada","Australia","Germany"], index=["UK","US","Nigeria","Canada","Australia","Germany"].index(st.session_state.country) if st.session_state.country in ["UK","US","Nigeria","Canada","Australia","Germany"] else 0)
-if country_sel!=st.session_state.country: st.session_state.country=country_sel; st.rerun()
+if country_sel!=st.session_state.country: st.session_state.country=country_sel; st.session_state.receipts_data=[]; st.rerun()
 
+cur=get_currency()
 main_nav=st.radio("nav", ["Add","List","Dashboard","Accountant"], horizontal=True, label_visibility="collapsed", key="main_nav")
 
 if main_nav=="Add":
-    st.markdown("**Add Receipt**")
+    st.markdown(f"**Add Receipt - {st.session_state.country} ({cur})**")
     upload_method=st.radio("method", ["Browse files","Take photo"], horizontal=True, label_visibility="collapsed", key="upload_method")
     uploaded=None
-    uploader_key=f"uploader_{st.session_state.user_id}_{st.session_state.upload_counter}"
+    uploader_key=f"uploader_{st.session_state.user_id}_{st.session_state.upload_counter}_{st.session_state.country}"
     if upload_method=="Browse files":
-        uf=st.file_uploader("Pick receipt", type=["jpg","jpeg","png","heic"], key=uploader_key, label_visibility="collapsed")
+        uf=st.file_uploader(f"Pick receipt - {cur} will be auto-detected for {st.session_state.country}", type=["jpg","jpeg","png","heic"], key=uploader_key, label_visibility="collapsed")
         if uf: uploaded=uf
     else:
-        cam=st.camera_input("Take photo", key=f"cam_{st.session_state.user_id}_{st.session_state.upload_counter}", label_visibility="collapsed")
+        cam=st.camera_input("Take photo", key=f"cam_{st.session_state.user_id}_{st.session_state.upload_counter}_{st.session_state.country}", label_visibility="collapsed")
         if cam: uploaded=cam
     if uploaded:
         orig_name=getattr(uploaded,'name', f"receipt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
@@ -319,22 +327,22 @@ if main_nav=="Add":
         if st.session_state.current_image_path and os.path.exists(st.session_state.current_image_path):
             try:
                 img=Image.open(st.session_state.current_image_path)
-                st.image(img, width=200, caption=f"Ready for {st.session_state.user_id}")
+                st.image(img, width=200, caption=f"Ready for {st.session_state.user_id} - {st.session_state.country} {cur}")
             except: st.write("Image ready")
-            with st.spinner("Reading receipt..."):
+            with st.spinner(f"Reading receipt as {st.session_state.country} {cur}..."):
                 detected=extract_receipt_data(st.session_state.current_image_path)
                 st.session_state.detected=detected
                 if detected["total"]>0:
-                    st.success(f"✅ Auto-detected: {detected['shop']} £{detected['total']} {detected['date']}")
+                    st.success(f"✅ {st.session_state.country} {cur}{detected['total']} - {detected['shop']} {detected['date']}")
                 else:
-                    st.error("❌ Could not auto-read")
+                    st.error(f"❌ Could not auto-read {cur}")
                     st.code(detected.get("debug","")[:800])
         with st.form("add_form"):
             def_shop=st.session_state.detected.get("shop","")
             def_total=float(st.session_state.detected.get("total",0.0))
             def_date=st.session_state.detected.get("date", datetime.now().strftime("%Y-%m-%d"))
             shop=st.text_input("Description", value=def_shop)
-            total=st.number_input("Total £", value=def_total, step=0.01)
+            total=st.number_input(f"Total {cur}", value=def_total, step=0.01)
             date=st.text_input("Date", value=def_date)
             cat=st.selectbox("Category", ["Cost of goods sold","Tools","Travel","Materials","Office costs","Fuel","Other"])
             if st.form_submit_button("SUBMIT RECEIPT", type="secondary", use_container_width=True):
@@ -344,16 +352,16 @@ if main_nav=="Add":
                     st.session_state.upload_counter+=1
                     st.session_state.current_image_path=None
                     st.session_state.detected={"shop":"","total":0.0,"date":datetime.now().strftime("%Y-%m-%d"),"debug":""}
-                    st.success(f"Saved {shop} £{total:.2f} - Go to List")
+                    st.success(f"Saved {shop} {cur}{total:.2f} - Go to List")
                     st.rerun()
 
 if main_nav=="List":
-    st.markdown("**Receipts - List**")
+    st.markdown(f"**Receipts - List - {st.session_state.country} {cur}**")
     df=load_receipts()
     if df.empty:
         st.info("No receipts yet - Add in Add tab")
     else:
-        st.success(f"{len(df)} receipts for {st.session_state.user_id}")
+        st.success(f"{len(df)} receipts for {st.session_state.user_id} - {st.session_state.country} {cur}")
         for idx in range(len(df)-1, -1, -1):
             row=df.iloc[idx]
             c1,c2,c3,c4=st.columns([1,3,2,2])
@@ -363,12 +371,12 @@ if main_nav=="List":
                         im=Image.open(row["image_path"]); im.thumbnail((40,40)); st.image(im, width=40)
                     except: pass
             with c2: st.write(str(row['shop'])[:20])
-            with c3: st.write(f"£{float(row['total']):.2f}")
+            with c3: st.write(f"{cur}{float(row['total']):.2f}")
             with c4:
                 with st.popover("View"):
                     st.write(f"{row['shop']} {row['total']}")
                     if row.get("image_path") and os.path.exists(str(row["image_path"])): st.image(Image.open(row["image_path"]), width=200)
-                    if st.button("DELETE", key=f"del_{idx}_{st.session_state.upload_counter}", type="secondary", use_container_width=True):
+                    if st.button("DELETE", key=f"del_{idx}_{st.session_state.upload_counter}_{st.session_state.country}", type="secondary", use_container_width=True):
                         try: st.session_state.receipts_data.pop(idx)
                         except: pass
                         try: pd.DataFrame(st.session_state.receipts_data).to_csv(get_db_file(), index=False)
@@ -376,59 +384,64 @@ if main_nav=="List":
                         st.rerun()
 
 if main_nav=="Dashboard":
-    st.markdown("**Dashboard**")
+    st.markdown(f"**Dashboard - {st.session_state.country} Tax 2026**")
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
-    st.caption(f"Loaded {len(df)} receipts, total £{total_exp:.2f}")
+    taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, 0)  # dummy for info
+    # Get actual with current income
+    st.caption(f"Country: {st.session_state.country} | Currency: {cur} | {bracket_info} | {len(df)} receipts total {cur}{total_exp:.2f}")
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input("Q1 Income (Apr-Jul)", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
-        q2=st.number_input("Q2 Income (Jul-Oct)", value=st.session_state.q2, min_value=0.0, step=0.01, key="q2_input")
+        q1=st.number_input(f"Q1 Income (Apr-Jul) {cur}", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
+        q2=st.number_input(f"Q2 Income (Jul-Oct) {cur}", value=st.session_state.q2, min_value=0.0, step=0.01, key="q2_input")
     with col2:
-        q3=st.number_input("Q3 Income (Oct-Jan)", value=st.session_state.q3, min_value=0.0, step=0.01, key="q3_input")
-        q4=st.number_input("Q4 Income (Jan-Apr)", value=st.session_state.q4, min_value=0.0, step=0.01, key="q4_input")
+        q3=st.number_input(f"Q3 Income (Oct-Jan) {cur}", value=st.session_state.q3, min_value=0.0, step=0.01, key="q3_input")
+        q4=st.number_input(f"Q4 Income (Jan-Apr) {cur}", value=st.session_state.q4, min_value=0.0, step=0.01, key="q4_input")
     if q1!=st.session_state.q1: st.session_state.q1=q1
     if q2!=st.session_state.q2: st.session_state.q2=q2
     if q3!=st.session_state.q3: st.session_state.q3=q3
     if q4!=st.session_state.q4: st.session_state.q4=q4
     annual_income=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
     annual_profit=annual_income-total_exp
+    taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, annual_profit)
     c1,c2,c3=st.columns(3)
-    c1.metric("Expenses", f"£{total_exp:.2f}"); c2.metric("Profit", f"£{annual_profit:.2f}")
+    c1.metric("Expenses", f"{cur}{total_exp:.2f}"); c2.metric("Profit", f"{cur}{annual_profit:.2f}")
+    c3.metric("Tax", f"{cur}{total_annual:.2f}")
     if annual_income>0:
-        taxable,total_annual,income_tax,ni_val=calc_tax_uk(annual_profit)
-        c3.metric("Tax", f"£{total_annual:.2f}")
-        st.success(f"Income £{annual_income:.0f} | Profit £{annual_profit:.0f} | Tax £{total_annual:.0f}")
+        st.success(f"{st.session_state.country} {cur} | Income {cur}{annual_income:.0f} | Profit {cur}{annual_profit:.0f} | Taxable {cur}{taxable:.0f} | Tax {cur}{total_annual:.0f}")
+        st.caption(f"Brackets: {bracket_info}")
     else:
-        c3.metric("Tax","£0.00")
+        st.info(f"Enter Q1-Q4 income for {st.session_state.country} to see {cur} tax")
 
 if main_nav=="Accountant":
-    st.markdown("**Send to Accountant**")
+    st.markdown(f"**Send to Accountant - {st.session_state.country} {cur}**")
     df=load_receipts()
     if df.empty:
         st.info("No receipts - Add in Add tab")
     else:
-        st.success(f"{len(df)} receipts ready")
+        st.success(f"{len(df)} receipts ready - {st.session_state.country} {cur}")
         your_name=st.text_input("Your name", value=st.session_state.user_id, key="acct_name")
         accountant_email=st.text_input("Accountant email", value="accountant@example.com", key="acct_email")
         qi=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
         profit=qi-df["total"].sum()
-        # FIXED PREVIEW - removed Dynamic labels and Private line
+        taxable, total_annual, income_tax, ni_val, bracket_info = calc_tax_for_country(st.session_state.country, profit)
         st.markdown("### Preview")
         preview_text=f"""Hello,
 
-Please find my MTD records:
+Please find my records ({st.session_state.country} - {cur}):
 
 - Name: {your_name}
-- Annual Income: £{qi:.2f}
-  (Q1 £{st.session_state.q1:.2f} + Q2 £{st.session_state.q2:.2f} + Q3 £{st.session_state.q3:.2f} + Q4 £{st.session_state.q4:.2f})
-- Total Expenses: £{df['total'].sum():.2f} ({len(df)} receipts)
-- Annual Profit: £{profit:.2f}
+- Annual Income: {cur}{qi:.2f}
+  (Q1 {cur}{st.session_state.q1:.2f} + Q2 {cur}{st.session_state.q2:.2f} + Q3 {cur}{st.session_state.q3:.2f} + Q4 {cur}{st.session_state.q4:.2f})
+- Total Expenses: {cur}{df['total'].sum():.2f} ({len(df)} receipts)
+- Annual Profit: {cur}{profit:.2f}
+- Taxable Profit: {cur}{taxable:.2f}
+- Estimated Tax: {cur}{total_annual:.2f} ({bracket_info})
 
 Thanks,
 {your_name}
 """
-        st.text_area("Preview", preview_text, height=200, key="preview_simple", label_visibility="collapsed")
-        st.download_button("Download CSV", df.to_csv(index=False).encode(), "MTD.csv", "text/csv", use_container_width=True, type="secondary")
+        st.text_area("Preview", preview_text, height=240, key="preview_simple", label_visibility="collapsed")
+        st.download_button(f"Download CSV {cur}", df.to_csv(index=False).encode(), f"MTD_{st.session_state.country}.csv", "text/csv", use_container_width=True, type="secondary")
         import urllib.parse
-        st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote('MTD Records - '+your_name)}&body={urllib.parse.quote(preview_text)}", use_container_width=True, type="secondary")
+        st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote(f'Records {st.session_state.country} - '+your_name)}&body={urllib.parse.quote(preview_text)}", use_container_width=True, type="secondary")
