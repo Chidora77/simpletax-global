@@ -7,77 +7,98 @@ import os, re, base64, io
 
 st.set_page_config(page_title="SimpleTax Global", page_icon="🌍", layout="centered", initial_sidebar_state="collapsed")
 
-# ULTRA BLUE + RADIO BLUE - WORKS WITHOUT config.toml
 st.markdown("""
 <style>
 html, body, .stApp, [data-testid="stAppViewContainer"] {background-color: #eef2f7 !important;}
 .block-container {background-color: #eef2f7 !important; max-width: 430px !important;}
 #MainMenu, header, footer, [data-testid="stToolbar"] {display: none !important;}
 
-/* ALL BUTTONS BLUE - force even secondary/link */
+/* ALL BUTTONS BLUE */
 button, div[data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
-a[data-testid="stLinkButton"], [data-testid="stLinkButton"], [data-testid="stLinkButton"] a,
-button[kind="secondary"], button[kind="primary"] {
-    background-color: #1e40af !important;
-    background: #1e40af !important;
-    color: white !important;
-    border: 1px solid #1e40af !important;
-    border-radius: 10px !important;
+a[data-testid="stLinkButton"] {
+    background-color: #1e40af !important; background: #1e40af !important;
+    color: white !important; border-color: #1e40af !important; border-radius: 10px !important;
 }
-button p, button span, a[data-testid="stLinkButton"] p { color: white !important; }
 
-/* RADIO - ULTRA BLUE */
-div[data-baseweb="radio"] > div > div > div:first-child {
-    border-color: #1e40af !important;
-    background-color: white !important;
-}
+/* RADIO BLUE - accent-color + fill */
+input[type="radio"] { accent-color: #1e40af !important; }
+div[data-baseweb="radio"] { accent-color: #1e40af !important; }
 div[data-baseweb="radio"] svg, div[data-baseweb="radio"] svg circle,
-span[data-baseweb="radioMarkInner"], 
-div[data-baseweb="radio"] div[aria-checked="true"],
-div[data-baseweb="radio"] div[data-baseweb="radioMarkOuter"] {
+span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] div {
     fill: #1e40af !important;
     background-color: #1e40af !important;
     border-color: #1e40af !important;
     stroke: #1e40af !important;
 }
-div[role="radiogroup"] label > div:first-child { border-color: #1e40af !important; }
+div[data-baseweb="radio"] > div:first-child { border-color: #1e40af !important; }
+
+/* INCOME FIELDS - VISIBLE BORDER + WHITE BG */
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextInput"] input,
+div[data-testid="stTextInput"] textarea,
+input[type="number"], input[type="text"] {
+    border: 1.5px solid #94a3b8 !important;
+    background-color: white !important;
+    border-radius: 8px !important;
+    color: #1e293b !important;
+}
+div[data-testid="stNumberInput"] > div, div[data-testid="stTextInput"] > div {
+    border: 1.5px solid #94a3b8 !important;
+    background: white !important;
+    border-radius: 8px !important;
+}
+
+/* ACCOUNTANT FIELDS SAME */
+div[data-testid="stTextInput"] { border: 1.5px solid #cbd5e1 !important; background: white !important; border-radius: 8px !important; }
+
+/* PREVIEW BOX */
+div[data-testid="stTextArea"] textarea {
+    border: 1.5px solid #94a3b8 !important;
+    background: white !important;
+    border-radius: 8px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
 st.components.v1.html("""
 <script>
 (function(){
-  function forceAllBlue(){
+  function forceBlue(){
     try{
       const doc = window.parent.document;
-      if(!doc.getElementById('blue-v7')){
+      if(!doc.getElementById('blue-v8')){
         const s=doc.createElement('style');
-        s.id='blue-v7';
+        s.id='blue-v8';
         s.textContent=`
-          button, [data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button,
-          a[data-testid="stLinkButton"]{background:#1e40af !important; color:white !important; border-color:#1e40af !important;}
+          input[type="radio"]{accent-color:#1e40af !important;}
+          button, [data-testid="stButton"] button, [data-testid="stFormSubmitButton"] button, a[data-testid="stLinkButton"]{background:#1e40af !important; color:white !important;}
           div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]{fill:#1e40af !important; background:#1e40af !important;}
+          div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input{border:1.5px solid #94a3b8 !important; background:white !important;}
         `;
         doc.head.appendChild(s);
       }
       doc.querySelectorAll('button, a[data-testid="stLinkButton"]').forEach(b=>{
         b.style.setProperty('background-color','#1e40af','important');
-        b.style.setProperty('background','#1e40af','important');
         b.style.setProperty('color','white','important');
       });
-      doc.querySelectorAll('div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"], div[data-baseweb="radio"] div').forEach(el=>{
-        try{ el.style.setProperty('fill','#1e40af','important'); el.style.setProperty('background-color','#1e40af','important'); }catch(e){}
+      doc.querySelectorAll('input[type="radio"]').forEach(r=>{ r.style.setProperty('accent-color','#1e40af','important'); });
+      doc.querySelectorAll('div[data-baseweb="radio"] svg, span[data-baseweb="radioMarkInner"]').forEach(el=>{
+        el.style.setProperty('fill','#1e40af','important');
+        el.style.setProperty('background-color','#1e40af','important');
+      });
+      doc.querySelectorAll('div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input, textarea').forEach(inp=>{
+        inp.style.setProperty('border','1.5px solid #94a3b8','important');
+        inp.style.setProperty('background','white','important');
       });
     }catch(e){}
   }
-  forceAllBlue();
-  setInterval(forceAllBlue, 300);
-  try{ new MutationObserver(forceAllBlue).observe(window.parent.document.body,{childList:true,subtree:true}); }catch(e){}
+  forceBlue();
+  setInterval(forceBlue, 400);
+  try{ new MutationObserver(forceBlue).observe(window.parent.document.body,{childList:true,subtree:true}); }catch(e){}
 })();
 </script>
 """, height=0)
 
-# --- STATE WITH SESSION BACKUP (fixes Render ephemeral file loss) ---
 if "user_id" not in st.session_state: st.session_state.user_id = None
 if "country" not in st.session_state: st.session_state.country = "UK"
 if "q1" not in st.session_state: st.session_state.q1 = 0.0
@@ -89,7 +110,7 @@ if "current_image_path" not in st.session_state: st.session_state.current_image_
 if "detected" not in st.session_state:
     st.session_state.detected = {"shop": "", "total": 0.0, "date": datetime.now().strftime("%Y-%m-%d"), "debug": ""}
 if "receipts_data" not in st.session_state:
-    st.session_state.receipts_data = []  # BACKUP in session so List never empty after upload
+    st.session_state.receipts_data = []
 
 if "logout" in st.query_params:
     st.session_state.user_id = None
@@ -118,7 +139,7 @@ def extract_receipt_data(image_path):
             api_key = st.secrets["OPENAI_API_KEY"]
     except: pass
     if not api_key:
-        result["debug"]="❌ OPENAI_API_KEY NOT FOUND - Add in Render → Environment"
+        result["debug"]="❌ OPENAI_API_KEY NOT FOUND"
         return result
     try:
         import openai
@@ -167,7 +188,6 @@ def get_upload_dir():
     d=f"receipt_images_{uid}_{c}"; os.makedirs(d, exist_ok=True); return d
 
 def load_receipts():
-    # Try session first (fixes Render ephemeral loss)
     if st.session_state.receipts_data:
         df = pd.DataFrame(st.session_state.receipts_data)
         if not df.empty:
@@ -177,7 +197,6 @@ def load_receipts():
         return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at"])
     try:
         df=pd.read_csv(f)
-        # Sync to session
         if not df.empty:
             st.session_state.receipts_data = df.to_dict('records')
         return df
@@ -185,19 +204,12 @@ def load_receipts():
         return pd.DataFrame(columns=["date","shop","total","category","filename","image_path","created_at"])
 
 def save_receipt(shop, date, total, category, filename, image_path=""):
-    f=get_db_file()
     record={"date":date,"shop":shop,"total":float(total),"category":category,"filename":filename,"image_path":image_path,"created_at":datetime.now().strftime("%Y-%m-%d %H:%M")}
-    # Save to session (persists during session even if file deleted)
     st.session_state.receipts_data.append(record)
-    # Also save to file
     try:
-        df=load_receipts()
-        # If df from session, it already has new record? Avoid duplicate
-        # Rebuild from session
-        df2=pd.DataFrame(st.session_state.receipts_data)
-        df2.to_csv(f, index=False)
+        pd.DataFrame(st.session_state.receipts_data).to_csv(get_db_file(), index=False)
     except:
-        pd.DataFrame([record]).to_csv(f, index=False)
+        pass
 
 if not st.session_state.user_id:
     st.markdown("### 🌍 SimpleTax Global")
@@ -213,11 +225,9 @@ if not st.session_state.user_id:
             st.session_state.user_id=safe; st.session_state.country=country_sel; st.session_state.receipts_data=[]; st.rerun()
     st.stop()
 
-# FIXED LAYOUT: wider logout column so full text shows, not Log...
 col_h1, col_h2=st.columns([2,1])
 with col_h1: st.markdown("**🌍 SimpleTax Global**")
 with col_h2:
-    # Use button not link_button to avoid white
     if st.button("Logout", type="secondary", use_container_width=True, key="logout_btn"):
         st.session_state.user_id=None
         st.session_state.receipts_data=[]
@@ -280,17 +290,16 @@ if main_nav=="Add":
                     st.session_state.upload_counter+=1
                     st.session_state.current_image_path=None
                     st.session_state.detected={"shop":"","total":0.0,"date":datetime.now().strftime("%Y-%m-%d"),"debug":""}
-                    st.success(f"Saved {shop} £{total:.2f} - Go to List tab to see it")
+                    st.success(f"Saved {shop} £{total:.2f} - Go to List")
                     st.rerun()
 
 if main_nav=="List":
     st.markdown("**Receipts - List**")
     df=load_receipts()
     if df.empty:
-        st.info("No receipts yet - Add a receipt in Add tab and click SUBMIT RECEIPT")
-        st.caption(f"Debug: {len(st.session_state.receipts_data)} in session, file {get_db_file()} exists={os.path.exists(get_db_file())}")
+        st.info("No receipts yet - Add in Add tab")
     else:
-        st.success(f"{len(df)} receipts for {st.session_state.user_id} (Private)")
+        st.success(f"{len(df)} receipts for {st.session_state.user_id}")
         for idx in range(len(df)-1, -1, -1):
             row=df.iloc[idx]
             c1,c2,c3,c4=st.columns([1,3,2,2])
@@ -306,16 +315,9 @@ if main_nav=="List":
                     st.write(f"{row['shop']} {row['total']}")
                     if row.get("image_path") and os.path.exists(str(row["image_path"])): st.image(Image.open(row["image_path"]), width=200)
                     if st.button("DELETE", key=f"del_{idx}_{st.session_state.upload_counter}", type="secondary", use_container_width=True):
-                        # Delete from session
-                        try:
-                            st.session_state.receipts_data.pop(idx)
+                        try: st.session_state.receipts_data.pop(idx)
                         except: pass
-                        # Delete file
-                        try:
-                            if os.path.exists(str(row["image_path"])): os.remove(str(row["image_path"]))
-                        except: pass
-                        try:
-                            pd.DataFrame(st.session_state.receipts_data).to_csv(get_db_file(), index=False)
+                        try: pd.DataFrame(st.session_state.receipts_data).to_csv(get_db_file(), index=False)
                         except: pass
                         st.rerun()
 
@@ -323,10 +325,10 @@ if main_nav=="Dashboard":
     st.markdown("**Dashboard**")
     df=load_receipts()
     total_exp=df["total"].sum() if not df.empty else 0
-    st.info(f"Loaded {len(df)} receipts, total £{total_exp:.2f} from {get_db_file()}")
+    st.caption(f"Loaded {len(df)} receipts, total £{total_exp:.2f}")
     col1,col2=st.columns(2)
     with col1:
-        q1=st.number_input("Q1 Income (Apr-Jul)", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input")
+        q1=st.number_input("Q1 Income (Apr-Jul)", value=st.session_state.q1, min_value=0.0, step=0.01, key="q1_input", help="Enter amount")
         q2=st.number_input("Q2 Income (Jul-Oct)", value=st.session_state.q2, min_value=0.0, step=0.01, key="q2_input")
     with col2:
         q3=st.number_input("Q3 Income (Oct-Jan)", value=st.session_state.q3, min_value=0.0, step=0.01, key="q3_input")
@@ -345,7 +347,6 @@ if main_nav=="Dashboard":
         st.success(f"Income £{annual_income:.0f} | Profit £{annual_profit:.0f} | Tax £{total_annual:.0f}")
     else:
         c3.metric("Tax","£0.00")
-        st.caption("Enter Q1-Q4 income above")
 
 if main_nav=="Accountant":
     st.markdown("**Send to Accountant**")
@@ -353,13 +354,31 @@ if main_nav=="Accountant":
     if df.empty:
         st.info("No receipts - Add in Add tab")
     else:
-        st.success(f"{len(df)} receipts ready")
-        your_name=st.text_input("Your name", value=st.session_state.user_id)
-        accountant_email=st.text_input("Accountant email", value="accountant@example.com")
+        st.success(f"{len(df)} receipts ready - Private for {st.session_state.user_id}")
+        # VISIBLE FIELDS WITH BORDER
+        your_name=st.text_input("Your name", value=st.session_state.user_id, key="acct_name", help="Your name for email signature")
+        accountant_email=st.text_input("Accountant email", value="accountant@example.com", key="acct_email", help="Accountant email address")
         qi=st.session_state.q1+st.session_state.q2+st.session_state.q3+st.session_state.q4
         profit=qi-df["total"].sum()
-        txt=f"Annual Income: {qi:.2f} Expenses: {df['total'].sum():.2f} Profit: {profit:.2f} Thanks {your_name}"
-        st.text_area("Preview", txt, height=100, label_visibility="collapsed")
+        # DYNAMIC PREVIEW - updates as you type name
+        st.markdown("### Preview - Dynamic")
+        st.caption(f"Updates as you type name - Thanks, {your_name}")
+        preview_text=f"""Hello,
+
+Please find my MTD records:
+
+- Name: {your_name}
+- Annual Income: £{qi:.2f}
+  (Q1 £{st.session_state.q1:.2f} + Q2 £{st.session_state.q2:.2f} + Q3 £{st.session_state.q3:.2f} + Q4 £{st.session_state.q4:.2f})
+- Total Expenses: £{df['total'].sum():.2f} ({len(df)} receipts)
+- Annual Profit: £{profit:.2f}
+
+Thanks,
+{your_name}
+
+Private: {st.session_state.user_id} - {st.session_state.country}
+"""
+        st.text_area("Email Preview (dynamic with your name)", preview_text, height=220, key="preview_dynamic")
         st.download_button("Download CSV", df.to_csv(index=False).encode(), "MTD.csv", "text/csv", use_container_width=True, type="secondary")
         import urllib.parse
-        st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote('MTD')}&body={urllib.parse.quote(txt)}", use_container_width=True, type="secondary")
+        st.link_button("Open Email App", f"mailto:{accountant_email}?subject={urllib.parse.quote('MTD Records - '+your_name)}&body={urllib.parse.quote(preview_text)}", use_container_width=True, type="secondary")
